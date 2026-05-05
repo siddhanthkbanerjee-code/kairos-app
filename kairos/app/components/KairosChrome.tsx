@@ -76,6 +76,30 @@ function applyPalette(name: string) {
   );
 }
 
+function applyOrbPreset() {
+  // Match the "floating orb" background: purple/rose on dark navy.
+  const root = document.documentElement;
+  root.style.background = "rgb(10, 10, 18)"; // #0a0a12
+
+  // Requested orb colours.
+  const purple = "rgba(168, 85, 247, 0.4)"; // #a855f7
+  const rose = "rgba(244, 114, 182, 0.3)"; // #f472b6
+
+  const b1 = document.querySelector<HTMLElement>(".kairos-blob-1");
+  const b2 = document.querySelector<HTMLElement>(".kairos-blob-2");
+  const b3 = document.querySelector<HTMLElement>(".kairos-blob-3");
+  const b4 = document.querySelector<HTMLElement>(".kairos-blob-4");
+
+  if (b1) b1.style.background = purple;
+  if (b2) b2.style.background = rose;
+  if (b3) b3.style.background = purple;
+  if (b4) b4.style.background = rose;
+
+  // Ensure nav stays readable on dark orb background.
+  root.style.setProperty("--navText", "rgba(255,255,255,0.88)");
+  root.style.setProperty("--navIcon", "rgba(255,255,255,0.75)");
+}
+
 export function setKairosPalette(name: string) {
   sessionStorage.setItem("kairos:palette", name);
   applyPalette(name);
@@ -88,6 +112,7 @@ export default function KairosChrome({
 }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const orbPages = pathname === "/" || pathname === "/feed" || pathname === "/quiz";
 
   const initialPalette = useMemo(() => {
     if (pathname === "/") return "light-landing";
@@ -112,10 +137,12 @@ export default function KairosChrome({
       const stored = sessionStorage.getItem("kairos:palette");
       const name = stored || initialPalette;
       applyPalette(name);
+      if (orbPages) applyOrbPreset();
     } catch {
       applyPalette(initialPalette);
+      if (orbPages) applyOrbPreset();
     }
-  }, [initialPalette]);
+  }, [initialPalette, orbPages]);
 
   useEffect(() => {
     function onPaletteChange(e: Event) {
@@ -123,6 +150,7 @@ export default function KairosChrome({
       const name = ce.detail;
       sessionStorage.setItem("kairos:palette", name);
       applyPalette(name);
+      if (orbPages) applyOrbPreset();
     }
     window.addEventListener("kairos-palette-change", onPaletteChange as EventListener);
     return () =>
@@ -130,7 +158,14 @@ export default function KairosChrome({
         "kairos-palette-change",
         onPaletteChange as EventListener
       );
-  }, []);
+  }, [orbPages]);
+
+  useEffect(() => {
+    if (!orbPages) return;
+    try {
+      applyOrbPreset();
+    } catch {}
+  }, [orbPages]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -157,7 +192,7 @@ export default function KairosChrome({
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="kairos-hamburger"
+            className={["kairos-hamburger", drawerOpen ? "open" : ""].join(" ")}
             aria-label="Open menu"
           >
             <span />
@@ -196,15 +231,15 @@ export default function KairosChrome({
             <Link href="/passport" onClick={() => setDrawerOpen(false)}>
               Taste Passport
             </Link>
-            <button type="button" onClick={() => setDrawerOpen(false)}>
+            <Link href="/saved" onClick={() => setDrawerOpen(false)}>
               Saved Events
-            </button>
-            <button type="button" onClick={() => setDrawerOpen(false)}>
+            </Link>
+            <Link href="/settings" onClick={() => setDrawerOpen(false)}>
               Settings
-            </button>
-            <button type="button" onClick={() => setDrawerOpen(false)}>
+            </Link>
+            <Link href="/help" onClick={() => setDrawerOpen(false)}>
               Help
-            </button>
+            </Link>
           </div>
         </aside>
       </div>
