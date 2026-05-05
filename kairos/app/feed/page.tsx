@@ -333,7 +333,7 @@ function Row({
       </div>
 
       {expanded ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 justify-items-start">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 justify-items-start">
           {events.map((ev, idx) => (
             <RevealOnScroll key={ev.id} delay={idx * 60} className="w-full">
               <EventCard
@@ -398,6 +398,8 @@ export default function FeedPage() {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [apiError, setApiError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const activeFilterCount =
     (whenFilter !== "All" ? 1 : 0) +
@@ -428,6 +430,7 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
+    setApiError(false);
     try {
       const raw = sessionStorage.getItem("kairos:recommendations");
       if (!raw) {
@@ -445,9 +448,9 @@ export default function FeedPage() {
 
       setItems(results);
     } catch {
-      router.replace("/quiz");
+      setApiError(true);
     }
-  }, [router]);
+  }, [router, retryKey]);
 
   useEffect(() => {
     function onDocPointerDown(e: PointerEvent) {
@@ -687,6 +690,37 @@ export default function FeedPage() {
       })
       .slice(0, 10);
   }, [filtered]);
+
+  if (apiError) {
+    return (
+      <main className="min-h-dvh" style={{ color: "#fff" }}>
+        <div className="mx-auto flex min-h-[60vh] w-full max-w-6xl flex-col items-center justify-center px-5 py-20 text-center sm:px-8">
+          <div
+            className="w-full max-w-md rounded-3xl p-8"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(244,63,94,0.40)",
+            }}
+          >
+            <h2 className="editorial mb-2 text-2xl font-semibold text-white">
+              Something went wrong.
+            </h2>
+            <p className="mb-6 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
+              We couldn't load your events. Try again.
+            </p>
+            <button
+              type="button"
+              onClick={() => setRetryKey((k) => k + 1)}
+              className="inline-flex h-12 items-center justify-center rounded-full px-8 text-sm font-semibold text-white"
+              style={{ background: "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)" }}
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (sortedEvents === null) {
     return (
@@ -1107,26 +1141,51 @@ export default function FeedPage() {
               }),
             }));
 
-            return sections
-              .filter((s) => s.events.length >= 3)
-              .map((section, idx) => (
-                <RevealOnScroll key={section.title} delay={idx * 60}>
-                  <Row
-                    title={section.title}
-                    subtitle={section.subtitle}
-                    events={section.events}
-                    expanded={expandedRow === section.title}
-                    onToggleExpanded={() =>
-                      setExpandedRow((r) =>
-                        r === section.title ? null : section.title
-                      )
-                    }
-                    onOpen={openEvent}
-                    savedIds={savedIds}
-                    onToggleSave={toggleSave}
-                  />
-                </RevealOnScroll>
-              ));
+            const visibleSections = sections.filter((s) => s.events.length >= 3);
+
+            if (filtered !== null && filtered.length === 0) {
+              return (
+                <div className="flex min-h-[40vh] flex-col items-center justify-center py-20 text-center">
+                  <h2 className="editorial mb-3 text-3xl font-semibold text-white sm:text-4xl">
+                    Nothing matched your moment.
+                  </h2>
+                  <p
+                    className="mb-8 max-w-sm text-sm"
+                    style={{ color: "rgba(255,255,255,0.55)" }}
+                  >
+                    Try adjusting your taste profile or explore everything.
+                  </p>
+                  <Link
+                    href="/quiz"
+                    className="inline-flex h-12 items-center justify-center rounded-full px-8 text-sm font-semibold text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)",
+                    }}
+                  >
+                    Retake your taste quiz
+                  </Link>
+                </div>
+              );
+            }
+
+            return visibleSections.map((section, idx) => (
+              <RevealOnScroll key={section.title} delay={idx * 60}>
+                <Row
+                  title={section.title}
+                  subtitle={section.subtitle}
+                  events={section.events}
+                  expanded={expandedRow === section.title}
+                  onToggleExpanded={() =>
+                    setExpandedRow((r) =>
+                      r === section.title ? null : section.title
+                    )
+                  }
+                  onOpen={openEvent}
+                  savedIds={savedIds}
+                  onToggleSave={toggleSave}
+                />
+              </RevealOnScroll>
+            ));
           })()}
         </div>
 

@@ -18,8 +18,24 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Kairos",
-  description: "AI-powered cultural event discovery for London.",
+  title: "Kairos — Find your perfect moment in London",
+  description:
+    "Take an 8-question taste quiz and let AI discover your perfect London events. Personalised match scores, AI explanations, and zero noise.",
+  openGraph: {
+    title: "Kairos — Find your perfect moment",
+    description:
+      "Eight questions. A hundred signals. Your nights in London, discovered for you.",
+    siteName: "Kairos",
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Kairos — Find your perfect moment",
+    description:
+      "Eight questions. A hundred signals. Your nights in London, discovered for you.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

@@ -112,7 +112,16 @@ export function EventCard({
   return (
     <div
       className={isCarousel ? "w-[188px] shrink-0" : "w-full"}
+      role="button"
+      tabIndex={0}
+      aria-label={ev.title ?? "Open event"}
       onClick={() => onOpen(ev)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen(ev);
+        }
+      }}
     >
       <article
         className="kairos-event-card overflow-hidden"
@@ -171,6 +180,7 @@ export function EventCard({
             role="button"
             tabIndex={0}
             aria-pressed={isSaved}
+            aria-label={isSaved ? "Remove from saved" : "Save event"}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

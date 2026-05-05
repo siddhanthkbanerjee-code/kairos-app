@@ -198,6 +198,7 @@ function FriendCard({
 export default function EventDetailPage() {
   const router = useRouter();
   const [ev, setEv] = useState<RecommendResult | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [animateBars, setAnimateBars] = useState(false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
 
@@ -210,6 +211,7 @@ export default function EventDetailPage() {
       const raw = sessionStorage.getItem("kairos:currentEvent");
       if (raw) {
         setEv(JSON.parse(raw) as RecommendResult);
+        setIsLoaded(true);
         return;
       }
 
@@ -217,12 +219,12 @@ export default function EventDetailPage() {
       if (recsRaw) {
         const parsed = JSON.parse(recsRaw) as { results?: RecommendResult[] };
         const list = Array.isArray(parsed?.results) ? parsed.results : [];
-        // If we can't find it, just fall through.
         setEv(list[0] ?? null);
       }
     } catch {
       setEv(null);
     }
+    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -283,11 +285,33 @@ export default function EventDetailPage() {
     });
   }
 
-  if (!ev) {
+  if (!isLoaded) {
     return (
       <main className="min-h-dvh" style={{ color: "#fff" }}>
         <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8">
           <div className="text-white/70">Loading event…</div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!ev) {
+    return (
+      <main className="min-h-dvh" style={{ color: "#fff" }}>
+        <div className="mx-auto flex min-h-[80vh] w-full max-w-5xl flex-col items-center justify-center gap-5 px-5 py-20 text-center sm:px-8">
+          <h1 className="editorial text-4xl font-semibold text-white sm:text-5xl">
+            This moment has passed.
+          </h1>
+          <p className="max-w-sm text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
+            It may have sold out or been removed.
+          </p>
+          <Link
+            href="/feed"
+            className="inline-flex h-12 items-center justify-center rounded-full px-8 text-sm font-semibold text-white"
+            style={{ background: "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)" }}
+          >
+            Back to your feed
+          </Link>
         </div>
       </main>
     );
@@ -304,10 +328,10 @@ export default function EventDetailPage() {
   return (
     <main className="min-h-dvh" style={{ color: "#fff" }}>
       <div className="relative">
-        <section className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
+        <section className="relative h-[40vh] sm:h-[60vh] min-h-[280px] sm:min-h-[400px] w-full overflow-hidden">
           {/* Ken Burns wrapper — overflow-hidden on parent clips the scaled content */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 kairos-ken-burns-wrapper"
             style={{
               animation: "kairos-ken-burns 20s ease-in-out infinite alternate",
               transformOrigin: "center center",
@@ -345,7 +369,7 @@ export default function EventDetailPage() {
             </button>
           </div>
 
-          <div className="absolute right-5 top-5 flex flex-col items-end gap-2 sm:right-8 sm:top-7">
+          <div className="absolute right-5 top-5 hidden flex-col items-end gap-2 sm:flex sm:right-8 sm:top-7">
             <MatchBadge score={ev.score ?? 0} size="default" />
             <button
               type="button"
@@ -383,6 +407,9 @@ export default function EventDetailPage() {
             <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-6xl">
               {ev.title ?? "Untitled event"}
             </h1>
+            <div className="mt-3 sm:hidden">
+              <MatchBadge score={ev.score ?? 0} size="default" />
+            </div>
           </div>
         </section>
 

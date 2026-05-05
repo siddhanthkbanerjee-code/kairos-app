@@ -72,7 +72,7 @@ export default function Home() {
           >
             <Link
               href="/quiz"
-              className="kairos-btn-press inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none"
+              className="kairos-btn-press inline-flex h-14 w-full items-center justify-center rounded-full px-10 text-base font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none sm:w-auto"
               style={{
                 background:
                   "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)",

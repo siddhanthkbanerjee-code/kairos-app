@@ -400,6 +400,20 @@ body {
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ─── Global focus ring (keyboard only) ───────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(168, 85, 247, 0.9);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Ken Burns reduced-motion override ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .kairos-ken-burns-wrapper {
+    animation: none !important;
+  }
+}
+
 /* ─── Motion keyframes ─────────────────────────────────────────────────── */
 @keyframes kairos-page-in {
   from { opacity: 0; transform: translateY(14px); }

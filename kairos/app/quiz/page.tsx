@@ -231,6 +231,7 @@ export default function QuizPage() {
   const [transitionKey, setTransitionKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pulsing, setPulsing] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const current = QUESTIONS[index];
 
@@ -254,6 +255,7 @@ export default function QuizPage() {
 
   async function submitAndGoFeed(finalAnswers: QuizAnswers) {
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       sessionStorage.setItem(
         "kairos:quiz",
@@ -283,6 +285,7 @@ export default function QuizPage() {
     } catch (e) {
       console.error("Quiz submit error:", e);
       setIsSubmitting(false);
+      setSubmitError("We couldn't load your events. Check your connection and try again.");
     }
   }
 
@@ -579,6 +582,16 @@ export default function QuizPage() {
                   ? "See my results"
                   : "Continue"}
             </button>
+
+            {submitError ? (
+              <p
+                className="mt-3 text-center text-sm"
+                style={{ color: "#f472b6", fontFamily: "var(--font-body), system-ui, sans-serif" }}
+                role="alert"
+              >
+                {submitError}
+              </p>
+            ) : null}
           </div>
         </section>
       </div>
