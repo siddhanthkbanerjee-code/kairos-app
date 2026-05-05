@@ -1,26 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import KairosChrome from "./components/KairosChrome";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
 });
 
 const playfair = Playfair_Display({
   variable: "--font-editorial",
   subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Kairos",
-  description: "AI-powered event discovery",
+  description: "AI-powered cultural event discovery for London.",
 };
 
 export default function RootLayout({
@@ -31,8 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
-        style={{ background: "transparent" }}
+        className={`${dmSans.variable} ${playfair.variable} antialiased`}
       >
         <KairosChrome>{children}</KairosChrome>
       </body>

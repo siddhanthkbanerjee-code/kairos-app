@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import EventImageWithFallback from "../components/EventImageWithFallback";
+import { EventCard } from "../components/EventCard";
+import { FilterPill } from "../components/FilterPill";
 
 type RecommendResult = {
   id: string;
@@ -215,144 +217,6 @@ function getSocialContext(ev: RecommendResult) {
   return "";
 }
 
-function PremiumEventCard({
-  ev,
-  onOpen,
-  isSaved,
-  onToggleSave,
-  variant,
-}: {
-  ev: RecommendResult;
-  onOpen: (ev: RecommendResult) => void;
-  isSaved: boolean;
-  onToggleSave: (id: string) => void;
-  variant: "carousel" | "grid";
-}) {
-  const matchPct = clampMatchPercent(ev.score ?? 0);
-  const dateLabel = formatEventDate(ev.date);
-  const venueLine = [ev.venue, dateLabel].filter(Boolean).join(" • ");
-  const explanation = safeExplanation(getAiExplanation(ev));
-
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(ev)}
-      className={
-        variant === "carousel"
-          ? "group w-[180px] shrink-0 text-left"
-          : "group w-full text-left"
-      }
-    >
-      <article
-        className="overflow-hidden rounded-2xl"
-        style={{
-          boxShadow:
-            "0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.07)",
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.02) 100%)",
-          transition: "transform 220ms ease, box-shadow 220ms ease",
-          transform: "translateY(0px)",
-        }}
-      >
-        <div className="relative">
-          <div className="relative aspect-[9/10] w-full overflow-hidden bg-white/[0.04]">
-            <EventImageWithFallback
-              key={`${ev.id}:${ev.image_url ?? "none"}`}
-              event={ev}
-              wrapperClassName="absolute inset-0"
-              imgClassName="absolute inset-0 h-full w-full object-cover"
-              size="default"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(10,10,18,0.70), rgba(10,10,18,0.04))",
-              }}
-            />
-          </div>
-
-          <div
-            role="button"
-            tabIndex={0}
-            aria-pressed={isSaved}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onToggleSave(ev.id);
-            }}
-            onKeyDown={(e) => {
-              if (e.key !== "Enter" && e.key !== " ") return;
-              e.preventDefault();
-              e.stopPropagation();
-              onToggleSave(ev.id);
-            }}
-            className="absolute left-3 top-3 z-10 cursor-pointer rounded-full px-3 py-2 text-center min-h-[38px] min-w-[38px] flex items-center justify-center"
-            style={{
-              background: isSaved
-                ? `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_2} 100%)`
-                : "rgba(10,10,18,0.45)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="text-[10px] font-semibold" style={{ color: "#fff" }}>
-              {isSaved ? "Saved" : "Save"}
-            </div>
-          </div>
-
-          <div
-            className="absolute right-3 top-3 z-10 rounded-full px-3 py-2 text-center"
-            style={{
-              background: "rgba(10,10,18,0.45)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="text-sm font-semibold" style={{ color: ACCENT }}>
-              {matchPct}%
-            </div>
-            <div className="text-[10px] font-medium text-white/60">match</div>
-          </div>
-        </div>
-
-        <div className="space-y-2 px-4 pb-4 pt-4">
-          <div className="line-clamp-2 text-sm font-semibold text-white">
-            {ev.title ?? "Untitled event"}
-          </div>
-          <div className="line-clamp-1 text-xs text-white/55">{venueLine || "—"}</div>
-
-          <div
-            className={[
-              "min-h-[44px] line-clamp-2 text-[11px] leading-snug text-white/55",
-              explanation ? "" : "opacity-0",
-            ].join(" ")}
-            aria-hidden={!explanation}
-          >
-            {explanation ?? ""}
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <div className="text-xs text-white/75">
-              {formatPriceDisplay(ev.price_display)}
-            </div>
-            <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] text-white/70 transition group-hover:bg-white/[0.07]">
-              →
-            </div>
-          </div>
-        </div>
-      </article>
-      <style jsx>{`
-        button:hover article {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55),
-            0 0 0 1px rgba(168, 85, 247, 0.3);
-        }
-      `}</style>
-    </button>
-  );
-}
-
 function getRowIdentity(title: string) {
   const t = title.toLowerCase();
   if (t === "for you") return "Personalised";
@@ -471,7 +335,7 @@ function Row({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 justify-items-start">
           {events.map((ev) => (
             <div key={ev.id} className="w-full">
-              <PremiumEventCard
+              <EventCard
                 ev={ev}
                 onOpen={onOpen}
                 isSaved={savedIds.includes(ev.id)}
@@ -494,7 +358,7 @@ function Row({
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {events.map((ev) => (
-            <PremiumEventCard
+            <EventCard
               key={ev.id}
               ev={ev}
               onOpen={onOpen}
@@ -871,30 +735,14 @@ export default function FeedPage() {
             { id: "solo", label: "Solo" },
             { id: "date", label: "Date Night" },
             { id: "group", label: "Group" },
-          ] as const).map((m) => {
-            const active = activeMode === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setActiveMode(m.id)}
-                className="rounded-full px-4 py-2 text-sm font-medium transition-all"
-                style={{
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  borderColor: active
-                    ? "rgba(168,85,247,0.55)"
-                    : "rgba(255,255,255,0.10)",
-                  background: active
-                    ? `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_2} 100%)`
-                    : "rgba(255,255,255,0.03)",
-                  color: active ? "#fff" : "rgba(255,255,255,0.70)",
-                  boxShadow: active ? "0 10px 36px rgba(168,85,247,0.18)" : "none",
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
+          ] as const).map((m) => (
+            <FilterPill
+              key={m.id}
+              label={m.label}
+              active={activeMode === m.id}
+              onClick={() => setActiveMode(m.id)}
+            />
+          ))}
         </div>
 
         <div className="sticky top-0 z-20 -mx-3 mb-5 bg-black/30 px-5 py-3 backdrop-blur-md sm:-mx-8 sm:px-8">

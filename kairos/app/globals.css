@@ -1,46 +1,75 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
+/* ─── Brand tokens ─────────────────────────────────────────────────────── */
 :root {
-  --background: #0a0a12;
-  --foreground: #e9e7f0;
-  --accent: #a855f7;
-  --accent-2: #f472b6;
-  --panel: rgba(255, 255, 255, 0.04);
-  --panel-border: rgba(255, 255, 255, 0.06);
-  --blob1: #7c3aed;
-  --blob2: #4f46e5;
-  --blob3: #0d9488;
-  --blob4: #be185d;
-  --blobOpacity: 0.16;
-  --navText: rgba(255, 255, 255, 0.88);
-  --navIcon: rgba(255, 255, 255, 0.75);
+  --kairos-base:      #0a0a12;
+  --kairos-elevated:  #14141f;
+  --accent-purple:    #a855f7;
+  --accent-rose:      #f472b6;
+  --accent-indigo:    #6366f1;
+  --text-primary:     #f0f0f0;
+  --text-secondary:   rgba(255, 255, 255, 0.55);
+  --text-muted:       rgba(255, 255, 255, 0.35);
+  --navText:          rgba(255, 255, 255, 0.88);
+  --navIcon:          rgba(255, 255, 255, 0.75);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-editorial: var(--font-editorial);
+  --font-body:      var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a12;
-    --foreground: #e9e7f0;
-  }
+/* ─── Global reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--kairos-base);
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI,
-    Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--kairos-base);
+  color: var(--text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Selection ────────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color: #fff;
+}
+
+/* ─── Scrollbars ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--kairos-base);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.5);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 85, 247, 0.3) var(--kairos-base);
+}
+
+/* ─── Typography ───────────────────────────────────────────────────────── */
 .editorial {
-  font-family: var(--font-editorial);
+  font-family: var(--font-editorial), Georgia, serif;
 }
 
+/* ─── Blob system ──────────────────────────────────────────────────────── */
 .kairos-blobs {
   position: fixed;
   inset: 0;
@@ -52,57 +81,122 @@ body {
 .kairos-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
-  animation: kairos-drift linear infinite;
-  will-change: transform, border-radius, opacity;
+  filter: blur(80px);
+  will-change: transform, border-radius;
 }
 
 .kairos-blob-1 {
-  width: 600px;
-  height: 600px;
-  background: rgba(168, 85, 247, 0.4);
-  top: -200px;
-  left: -150px;
-  animation-duration: 40s;
+  width: 700px;
+  height: 700px;
+  background: rgba(168, 85, 247, 0.45);
+  top: -220px;
+  left: -160px;
+  animation: kairos-drift-1 18s ease-in-out infinite;
 }
 
 .kairos-blob-2 {
-  width: 550px;
-  height: 550px;
-  background: rgba(244, 114, 182, 0.3);
-  top: 30%;
+  width: 620px;
+  height: 620px;
+  background: rgba(244, 114, 182, 0.35);
+  top: 15%;
   right: -200px;
-  animation-duration: 55s;
-  animation-delay: -15s;
+  animation: kairos-drift-2 23s ease-in-out infinite;
+  animation-delay: -9s;
 }
 
 .kairos-blob-3 {
-  width: 500px;
-  height: 500px;
-  background: rgba(168, 85, 247, 0.4);
-  bottom: -100px;
-  left: 30%;
-  animation-duration: 48s;
-  animation-delay: -25s;
+  width: 560px;
+  height: 560px;
+  background: rgba(99, 102, 241, 0.38);
+  bottom: -120px;
+  left: 20%;
+  animation: kairos-drift-3 20s ease-in-out infinite;
+  animation-delay: -5s;
 }
 
 .kairos-blob-4 {
-  width: 450px;
-  height: 450px;
-  background: rgba(244, 114, 182, 0.3);
-  bottom: 20%;
-  left: -100px;
-  animation-duration: 62s;
-  animation-delay: -8s;
+  width: 480px;
+  height: 480px;
+  background: rgba(168, 85, 247, 0.28);
+  bottom: 10%;
+  left: -80px;
+  animation: kairos-drift-4 25s ease-in-out infinite;
+  animation-delay: -15s;
 }
 
- .kairos-content {
+@keyframes kairos-drift-1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    border-radius: 62% 38% 55% 45% / 50% 60% 40% 55%;
+  }
+  33% {
+    transform: translate(100px, -80px) scale(1.09);
+    border-radius: 45% 55% 65% 35% / 55% 45% 55% 45%;
+  }
+  66% {
+    transform: translate(-70px, 60px) scale(0.94);
+    border-radius: 55% 45% 40% 60% / 65% 35% 60% 40%;
+  }
+}
+
+@keyframes kairos-drift-2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    border-radius: 48% 52% 42% 58% / 60% 40% 62% 38%;
+  }
+  40% {
+    transform: translate(-90px, 70px) scale(1.07);
+    border-radius: 62% 38% 55% 45% / 45% 55% 45% 55%;
+  }
+  75% {
+    transform: translate(60px, -50px) scale(0.96);
+    border-radius: 38% 62% 50% 50% / 55% 45% 65% 35%;
+  }
+}
+
+@keyframes kairos-drift-3 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    border-radius: 55% 45% 60% 40% / 42% 62% 38% 58%;
+  }
+  25% {
+    transform: translate(80px, 90px) scale(1.06);
+    border-radius: 42% 58% 45% 55% / 62% 38% 58% 42%;
+  }
+  65% {
+    transform: translate(-100px, -60px) scale(0.93);
+    border-radius: 68% 32% 58% 42% / 38% 62% 42% 58%;
+  }
+}
+
+@keyframes kairos-drift-4 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    border-radius: 42% 58% 52% 48% / 58% 42% 62% 38%;
+  }
+  45% {
+    transform: translate(70px, -80px) scale(1.08);
+    border-radius: 62% 38% 62% 38% / 42% 58% 38% 62%;
+  }
+  80% {
+    transform: translate(-55px, 70px) scale(0.95);
+    border-radius: 52% 48% 38% 62% / 62% 38% 52% 48%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kairos-blob { animation: none; }
+}
+
+/* ─── Layout shell ─────────────────────────────────────────────────────── */
+.kairos-content {
   position: relative;
   z-index: 1;
   background: transparent;
   min-height: 100vh;
 }
 
+/* ─── Nav ──────────────────────────────────────────────────────────────── */
 .kairos-nav {
   position: sticky;
   top: 0;
@@ -111,21 +205,25 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 18px 20px;
-  backdrop-filter: blur(12px);
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(10, 10, 18, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .kairos-wordmark {
+  font-family: var(--font-editorial), Georgia, serif;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--navText);
   letter-spacing: 0.02em;
+  text-decoration: none;
 }
 
+/* ─── Hamburger ────────────────────────────────────────────────────────── */
 .kairos-hamburger {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.03);
@@ -134,43 +232,37 @@ body {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+  transition: background 160ms ease, border-color 160ms ease;
 }
 
 .kairos-hamburger span {
   display: block;
   width: 16px;
-  height: 2px;
+  height: 1.5px;
   background: var(--navIcon);
   border-radius: 9999px;
   transition: transform 180ms ease, opacity 180ms ease;
 }
 
-.kairos-hamburger:active {
-  transform: scale(0.98);
+.kairos-hamburger:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(168, 85, 247, 0.3);
 }
 
-.kairos-hamburger.open span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
+.kairos-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.kairos-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0.5); }
+.kairos-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-.kairos-hamburger.open span:nth-child(2) {
-  opacity: 0;
-  transform: scaleX(0.6);
-}
-
-.kairos-hamburger.open span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
+/* ─── Drawer ───────────────────────────────────────────────────────────── */
 .kairos-drawer-overlay {
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
   transition: opacity 280ms ease;
+  backdrop-filter: blur(2px);
 }
 
 .kairos-drawer-overlay.open {
@@ -183,89 +275,92 @@ body {
   top: 0;
   right: 0;
   height: 100dvh;
-  width: min(420px, 92vw);
+  width: min(400px, 90vw);
   z-index: 45;
   transform: translateX(110%);
   transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-  background: rgba(10, 10, 18, 0.62);
-  border-left: 1px solid rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(22px);
-  padding: 18px;
+  background: rgba(10, 10, 18, 0.75);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  padding: 20px;
 }
 
-.kairos-drawer.open {
-  transform: translateX(0%);
-}
+.kairos-drawer.open { transform: translateX(0%); }
 
 .kairos-drawer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 4px 16px;
+  padding: 4px 4px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .kairos-drawer-close {
-  width: 42px;
+  width: 40px;
   height: 40px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.kairos-drawer-close:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
 }
 
 .kairos-drawer-links {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 10px;
+  gap: 6px;
+  padding-top: 14px;
 }
 
 .kairos-drawer-links a,
 .kairos-drawer-links button {
   text-align: left;
-  padding: 14px 14px;
+  padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.86);
-  transition: background 160ms ease, border-color 160ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
 .kairos-drawer-links a:hover,
 .kairos-drawer-links button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.25);
+  color: #fff;
 }
 
-@keyframes kairos-drift {
-  0% {
-    transform: translate3d(0px, 0px, 0) scale(1);
-    border-radius: 50% 50% 50% 50% / 55% 45% 55% 45%;
-  }
-  25% {
-    transform: translate3d(60px, -40px, 0) scale(1.06);
-    border-radius: 55% 45% 60% 40% / 45% 60% 40% 55%;
-  }
-  50% {
-    transform: translate3d(-45px, 30px, 0) scale(0.98);
-    border-radius: 45% 55% 40% 60% / 60% 45% 55% 40%;
-  }
-  75% {
-    transform: translate3d(35px, 55px, 0) scale(1.04);
-    border-radius: 62% 38% 52% 48% / 40% 55% 45% 60%;
-  }
-  100% {
-    transform: translate3d(0px, 0px, 0) scale(1);
-    border-radius: 50% 50% 50% 50% / 55% 45% 55% 45%;
-  }
+/* ─── EventCard hover (no styled-jsx) ─────────────────────────────────── */
+.kairos-event-card {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  cursor: pointer;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .kairos-blob {
-    animation: none;
-  }
+.kairos-event-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(168, 85, 247, 0.4) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(168, 85, 247, 0.25) !important;
 }
 
+.kairos-event-card:hover .kairos-event-image {
+  filter: brightness(1.06);
+}
+
+.kairos-event-image {
+  transition: filter 200ms ease;
+}
+
+/* ─── Slider (quiz discovery dial) ────────────────────────────────────── */
 .kairos-range {
   -webkit-appearance: none;
   appearance: none;
@@ -274,45 +369,33 @@ body {
   border-radius: 9999px;
   background: linear-gradient(
     to right,
-    var(--accent) 0%,
-    var(--accent) var(--pct),
-    rgba(255, 255, 255, 0.14) var(--pct),
-    rgba(255, 255, 255, 0.14) 100%
+    var(--accent-purple) 0%,
+    var(--accent-purple) var(--pct),
+    rgba(255, 255, 255, 0.12) var(--pct),
+    rgba(255, 255, 255, 0.12) 100%
   );
   outline: none;
 }
 
 .kairos-range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 9999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.18), 0 0 26px rgba(168, 85, 247, 0.55);
+  background: var(--accent-purple);
+  box-shadow: 0 0 0 5px rgba(168, 85, 247, 0.2), 0 0 22px rgba(168, 85, 247, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .kairos-range::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 9999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.18), 0 0 26px rgba(168, 85, 247, 0.55);
+  background: var(--accent-purple);
+  box-shadow: 0 0 0 5px rgba(168, 85, 247, 0.2), 0 0 22px rgba(168, 85, 247, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.kairos-range::-moz-range-track {
-  height: 6px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
+/* ─── Utility ──────────────────────────────────────────────────────────── */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
