@@ -181,12 +181,12 @@ function glassCardClassName() {
 
 function optionClassName(selected: boolean) {
   return [
-    "w-full rounded-2xl border px-5 py-4 text-left",
+    "w-full rounded-2xl border px-5 py-5 text-left",
     "transition-colors duration-200 ease-out",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0",
     selected
-      ? "border-[rgba(168,85,247,0.55)] bg-[rgba(168,85,247,0.12)]"
-      : "border-white/10 bg-white/[0.06] hover:border-white/25 hover:bg-white/[0.08]",
+      ? "border-[rgba(168,85,247,0.65)] bg-[rgba(168,85,247,0.14)]"
+      : "border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/[0.07]",
   ].join(" ");
 }
 
@@ -428,10 +428,13 @@ export default function QuizPage() {
             </button>
           </div>
 
-          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full rounded-full transition-[width] duration-300 ease-out"
-              style={{ width: `${progressPct}%`, background: ACCENT }}
+              className="h-full rounded-full transition-[width] duration-400 ease-out"
+              style={{
+                width: `${progressPct}%`,
+                background: `linear-gradient(90deg, ${ACCENT} 0%, #f472b6 100%)`,
+              }}
             />
           </div>
         </header>
@@ -441,7 +444,7 @@ export default function QuizPage() {
           className={[
             glassCardClassName(),
             "px-6 pb-6 pt-6 sm:px-8 sm:pb-7 sm:pt-7",
-            "transition-all duration-300 ease-out",
+            "transition-all duration-400 ease-out",
             isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0",
           ].join(" ")}
         >
@@ -451,7 +454,7 @@ export default function QuizPage() {
             </div>
           </div>
 
-          <h1 className="text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl">
+          <h1 className="editorial text-balance text-3xl font-semibold leading-tight text-white sm:text-5xl">
             {current.question}
           </h1>
 

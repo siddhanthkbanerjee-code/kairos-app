@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import EventImageWithFallback from "../components/EventImageWithFallback";
+import { useRouter } from "next/navigation";
+import { EventCard } from "../components/EventCard";
+import type { EventCardEvent } from "../components/EventCard";
 
 type RecommendResult = {
   id: string;
@@ -17,20 +19,8 @@ type RecommendResult = {
   event_dna: Record<string, unknown> | null;
 };
 
-const ACCENT = "#a855f7";
-
-function formatEventDate(date: string | null) {
-  if (!date) return "Date TBA";
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return date;
-  return new Intl.DateTimeFormat("en-GB", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-  }).format(d);
-}
-
 export default function SavedPage() {
+  const router = useRouter();
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [allEvents, setAllEvents] = useState<RecommendResult[]>([]);
 
@@ -64,137 +54,131 @@ export default function SavedPage() {
 
   function persist(next: string[]) {
     setSavedIds(next);
-    sessionStorage.setItem("kairos:saved", JSON.stringify(next));
+    try {
+      sessionStorage.setItem("kairos:saved", JSON.stringify(next));
+    } catch {
+      // Ignore storage errors.
+    }
   }
 
-  function save(id: string) {
-    if (savedIds.includes(id)) return;
-    persist([...savedIds, id]);
+  function toggleSave(id: string) {
+    if (savedIds.includes(id)) {
+      persist(savedIds.filter((x) => x !== id));
+    } else {
+      persist([...savedIds, id]);
+    }
   }
 
-  function unsave(id: string) {
-    persist(savedIds.filter((x) => x !== id));
+  function openEvent(ev: EventCardEvent) {
+    sessionStorage.setItem("kairos:currentEvent", JSON.stringify(ev));
+    router.push(`/event/${encodeURIComponent(ev.id)}`);
   }
 
   return (
     <main className="min-h-dvh">
       <div className="mx-auto w-full max-w-6xl px-5 pb-14 pt-10 sm:px-8">
-        <header className="mb-8">
-          <h1 className="editorial text-4xl font-semibold text-white sm:text-5xl">
+        <header className="mb-10">
+          <p
+            className="mb-3 text-[10px] font-semibold uppercase"
+            style={{ color: "#a855f7", letterSpacing: "0.32em" }}
+          >
+            Your shortlist
+          </p>
+          <h1 className="editorial text-4xl font-semibold leading-tight text-white sm:text-5xl">
             Saved
           </h1>
-          <p className="mt-2 text-sm text-white/60">
-            Your shortlist for future nights.
+          <p className="mt-3 text-sm" style={{ color: "rgba(255,255,255,0.50)" }}>
+            Events you want to remember.
           </p>
         </header>
 
         {savedEvents.length === 0 ? (
           <section
-            className="rounded-3xl px-6 py-8"
+            className="flex flex-col items-center justify-center rounded-3xl px-8 py-16 text-center"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.10)",
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            <p className="max-w-xl text-white/70">
-              Nothing saved yet. Explore your feed and save events you want to
+            <div
+              className="mb-6 flex h-20 w-20 items-center justify-center rounded-full"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(244,114,182,0.12) 100%)",
+                border: "1px solid rgba(168,85,247,0.25)",
+              }}
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="rgba(168,85,247,0.8)"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <p
+              className="editorial mb-2 text-2xl font-semibold text-white"
+            >
+              Nothing saved yet
+            </p>
+            <p
+              className="mb-8 max-w-sm text-sm"
+              style={{ color: "rgba(255,255,255,0.50)" }}
+            >
+              Explore your feed and tap the heart on events you want to
               remember.
             </p>
-            <div className="mt-5">
-              <Link
-                href="/feed"
-                className="inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold text-white"
-                style={{ background: ACCENT }}
-              >
-                Go to feed
-              </Link>
-            </div>
+            <Link
+              href="/feed"
+              className="inline-flex h-12 items-center justify-center rounded-full px-8 text-sm font-semibold text-white transition-transform hover:scale-[1.03]"
+              style={{
+                background:
+                  "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)",
+                boxShadow: "0 0 32px rgba(168,85,247,0.35)",
+              }}
+            >
+              Go to feed
+            </Link>
           </section>
         ) : (
-          <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {savedEvents.map((ev) => (
-              <article
+              <EventCard
                 key={ev.id}
-                className="overflow-hidden rounded-2xl"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  boxShadow:
-                    "0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.07)",
-                }}
-              >
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-white/[0.04]">
-                <EventImageWithFallback
-                  key={`${ev.id}:${ev.image_url ?? "none"}`}
-                  event={ev}
-                  wrapperClassName="absolute inset-0"
-                  imgClassName="absolute inset-0 h-full w-full object-cover"
-                  size="small"
-                />
-              </div>
-                <div className="px-4 py-4">
-                  <h2 className="text-lg font-semibold text-white">
-                    {ev.title ?? "Untitled event"}
-                  </h2>
-                  <p className="mt-1 text-sm text-white/55">
-                    {[ev.venue, formatEventDate(ev.date)].filter(Boolean).join(" • ")}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <a
-                      href={ev.url ?? "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-white/80 underline decoration-white/20 underline-offset-4 hover:text-white"
-                    >
-                      View event
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => unsave(ev.id)}
-                      className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              </article>
+                ev={ev}
+                onOpen={openEvent}
+                isSaved={true}
+                onToggleSave={toggleSave}
+                variant="grid"
+              />
             ))}
           </section>
         )}
 
         {suggested.length > 0 ? (
-          <section className="mt-10">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/45">
-              Suggested to save
-            </h3>
-            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <section className="mt-14">
+            <p
+              className="mb-5 text-[10px] font-semibold uppercase"
+              style={{ color: "rgba(255,255,255,0.38)", letterSpacing: "0.26em" }}
+            >
+              You might also like
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {suggested.map((ev) => (
-                <button
+                <EventCard
                   key={ev.id}
-                  type="button"
-                  onClick={() => save(ev.id)}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:bg-white/[0.06]"
-                >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-white/[0.04]">
-                    <EventImageWithFallback
-                      key={`${ev.id}:${ev.image_url ?? "none"}`}
-                      event={ev}
-                      wrapperClassName="absolute inset-0"
-                      imgClassName="absolute inset-0 h-full w-full object-cover"
-                      size="small"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-white">
-                      {ev.title ?? "Untitled event"}
-                    </div>
-                    <div className="text-xs text-white/55">
-                      {[ev.venue, formatEventDate(ev.date)].filter(Boolean).join(" • ")}
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold" style={{ color: ACCENT }}>
-                    Save
-                  </span>
-                </button>
+                  ev={ev}
+                  onOpen={openEvent}
+                  isSaved={savedIds.includes(ev.id)}
+                  onToggleSave={toggleSave}
+                  variant="grid"
+                />
               ))}
             </div>
           </section>
@@ -203,4 +187,3 @@ export default function SavedPage() {
     </main>
   );
 }
-

@@ -718,15 +718,18 @@ export default function FeedPage() {
   return (
     <main className="min-h-dvh" style={{ color: "#fff" }}>
       <div className="mx-auto w-full max-w-6xl px-5 pb-14 pt-10 sm:px-8">
-        <header className="mb-6">
+        <header className="mb-8">
+          <p
+            className="mb-3 text-[10px] font-semibold uppercase"
+            style={{ color: ACCENT, letterSpacing: "0.35em" }}
+          >
+            Personalised for you
+          </p>
           <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl">
             Your London, Tonight
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-white/60">
-            A personalised selection based on your vibe.
-          </p>
-          <p className="mt-2 text-sm text-white/55">
-            Curated based on your vibe, energy, and taste profile.
+          <p className="mt-3 max-w-2xl text-sm" style={{ color: "rgba(255,255,255,0.50)" }}>
+            Every match score is calculated from your taste profile. The higher the score, the closer it fits.
           </p>
         </header>
 

@@ -1,9 +1,7 @@
- "use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect } from "react";
-
-const ACCENT = "#a855f7";
 
 export default function Home() {
   useEffect(() => {
@@ -13,62 +11,121 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-[calc(100dvh-72px)]">
-      <div className="mx-auto flex min-h-[calc(100dvh-72px)] w-full max-w-5xl flex-col justify-center px-6 pb-16 pt-10 sm:px-10">
-        <section className="flex flex-col items-start justify-center gap-10">
-          <div className="max-w-3xl space-y-5">
-            <p
-              className="text-xs font-medium uppercase tracking-[0.3em]"
-              style={{ letterSpacing: "0.3em" }}
-            >
-              <span style={{ color: ACCENT }}>London tonight, curated by AI</span>
-            </p>
-            <h1
-              className="editorial text-balance text-4xl font-semibold leading-tight sm:text-6xl"
-              style={{
-                color: "rgba(255,255,255,0.96)",
-                textShadow: "0 14px 44px rgba(0,0,0,0.65), 0 2px 10px rgba(0,0,0,0.45)",
-              }}
-            >
-              Discover the nights that{" "}
-              <span style={{ color: ACCENT }}>feel made for you</span>.
-            </h1>
-            <p
-              className="max-w-xl text-base sm:text-lg"
-              style={{
-                color: "rgba(255,255,255,0.74)",
-                textShadow: "0 12px 34px rgba(0,0,0,0.55), 0 2px 10px rgba(0,0,0,0.35)",
-              }}
-            >
-              Kairos learns your vibe in seconds and surfaces the most
-              interesting events in London right now—no endless scrolling, just
-              instant, tailored nights out.
-            </p>
-          </div>
+    <main>
+      {/* Hero */}
+      <section className="relative flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center px-6 pb-24 pt-10 text-center sm:px-10">
+        <div className="relative z-10 max-w-4xl">
+          <p
+            className="mb-6 text-[10px] font-semibold uppercase"
+            style={{ color: "#a855f7", letterSpacing: "0.38em" }}
+          >
+            London tonight, curated by AI
+          </p>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <h1
+            className="editorial text-balance leading-[0.92] tracking-tight"
+            style={{
+              fontSize: "clamp(48px, 9.5vw, 112px)",
+              color: "rgba(255,255,255,0.97)",
+              fontWeight: 700,
+              textShadow: "0 24px 70px rgba(0,0,0,0.6)",
+            }}
+          >
+            Find your perfect{" "}
+            <span
+              style={{
+                color: "transparent",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                backgroundImage:
+                  "linear-gradient(135deg, #a855f7 0%, #f472b6 55%, #a855f7 100%)",
+              }}
+            >
+              moment.
+            </span>
+          </h1>
+
+          <p
+            className="mx-auto mt-8 max-w-lg text-base sm:text-xl"
+            style={{
+              color: "rgba(255,255,255,0.56)",
+              lineHeight: 1.7,
+              textShadow: "0 10px 30px rgba(0,0,0,0.4)",
+            }}
+          >
+            Eight questions. A hundred signals. Your nights in London,
+            discovered for you alone.
+          </p>
+
+          <div className="mt-12 flex flex-col items-center gap-5 sm:flex-row sm:justify-center">
             <Link
               href="/quiz"
-              className="inline-flex h-12 items-center justify-center rounded-full px-8 text-sm font-semibold text-white shadow-lg shadow-[rgba(168,85,247,0.5)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0"
+              className="inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none"
               style={{
                 background:
-                  "linear-gradient(135deg, rgba(168,85,247,1) 0%, rgba(244,114,182,0.92) 100%)",
+                  "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)",
+                boxShadow:
+                  "0 0 48px rgba(168,85,247,0.45), 0 8px 28px rgba(0,0,0,0.35)",
               }}
             >
-              Start the taste quiz
+              Find your moment
             </Link>
-            <div
+            <span
               className="text-sm"
-              style={{
-                color: "rgba(255,255,255,0.70)",
-                textShadow: "0 10px 30px rgba(0,0,0,0.45)",
-              }}
+              style={{ color: "rgba(255,255,255,0.38)" }}
             >
-              8 questions, 90 seconds.
-            </div>
+              8 questions &nbsp;·&nbsp; 90 seconds
+            </span>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* Feature strip */}
+      <section
+        className="px-6 py-16 sm:px-10"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 sm:grid-cols-3">
+          {[
+            {
+              num: "01",
+              title: "Tell us your vibe",
+              body:
+                "Eight questions about your energy, aesthetic, and taste. No signup required.",
+            },
+            {
+              num: "02",
+              title: "We map your taste",
+              body:
+                "Our AI builds your cultural fingerprint across 100-plus dimensions in real time.",
+            },
+            {
+              num: "03",
+              title: "You get your city",
+              body:
+                "Personalised events with match scores, AI explanations, and zero noise.",
+            },
+          ].map((f) => (
+            <div key={f.num} className="space-y-3">
+              <div
+                className="text-[10px] font-semibold uppercase"
+                style={{ color: "#a855f7", letterSpacing: "0.3em" }}
+              >
+                {f.num}
+              </div>
+              <div className="editorial text-2xl font-semibold text-white">
+                {f.title}
+              </div>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "rgba(255,255,255,0.52)" }}
+              >
+                {f.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

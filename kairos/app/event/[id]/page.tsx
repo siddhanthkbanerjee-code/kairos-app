@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import EventImageWithFallback from "../../components/EventImageWithFallback";
+import { MatchBadge } from "../../components/MatchBadge";
 
 type RecommendResult = {
   id: string;
@@ -303,7 +304,7 @@ export default function EventDetailPage() {
   return (
     <main className="min-h-dvh" style={{ color: "#fff" }}>
       <div className="relative">
-        <section className="relative h-[50vh] min-h-[360px] w-full overflow-hidden">
+        <section className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
           <EventImageWithFallback
             key={`${ev.id}:${ev.image_url ?? "none"}`}
             event={ev}
@@ -335,32 +336,35 @@ export default function EventDetailPage() {
           </div>
 
           <div className="absolute right-5 top-5 flex flex-col items-end gap-2 sm:right-8 sm:top-7">
-            <div
-              className="rounded-full px-4 py-2 text-sm font-semibold"
-              style={{
-                background: "rgba(10,10,18,0.40)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                color: ACCENT,
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              {matchPct}% match
-            </div>
+            <MatchBadge score={ev.score ?? 0} size="default" />
             <button
               type="button"
               onClick={() => toggleSave(ev.id)}
               aria-pressed={isSaved}
-              className="rounded-full px-4 py-2 text-sm font-semibold"
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
               style={{
                 background: isSaved
                   ? `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_2} 100%)`
-                  : "rgba(10,10,18,0.40)",
+                  : "rgba(10,10,18,0.50)",
                 border: "1px solid rgba(255,255,255,0.12)",
-                color: "#fff",
                 backdropFilter: "blur(10px)",
-                boxShadow: isSaved ? "0 18px 60px rgba(168,85,247,0.18)" : "none",
+                boxShadow: isSaved ? "0 0 24px rgba(168,85,247,0.35)" : "none",
+                transition: "all 200ms ease",
               }}
             >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill={isSaved ? "#fff" : "none"}
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
               {isSaved ? "Saved" : "Save"}
             </button>
           </div>
@@ -373,15 +377,32 @@ export default function EventDetailPage() {
         </section>
 
         <div className="mx-auto w-full max-w-5xl px-5 pb-28 pt-10 sm:px-8">
-          <section className="space-y-4">
-            <div className="text-sm text-white/60">
-              {[ev.venue, dateLabel, timeLabel].filter(Boolean).join(" • ")}
+          <section className="space-y-3">
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
+              {[ev.venue, dateLabel, timeLabel].filter(Boolean).join(" · ")}
+            </p>
+            <p className="text-lg font-semibold text-white">{priceLabel}</p>
+          </section>
+
+          <section
+            className="mt-8 rounded-3xl px-6 py-7 sm:px-8"
+            style={{
+              background: "rgba(168,85,247,0.06)",
+              border: "1px solid rgba(168,85,247,0.22)",
+            }}
+          >
+            <div
+              className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase"
+              style={{ color: ACCENT, letterSpacing: "0.28em" }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill={ACCENT} aria-hidden="true">
+                <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61z" />
+              </svg>
+              Kairos AI
             </div>
-            <div className="text-base font-medium text-white">{priceLabel}</div>
-            <div className="max-w-3xl text-base text-white/70">
-              <div className="text-sm font-semibold text-white/85">Why it&apos;s a vibe</div>
-              <p className="mt-2">{vibeParagraph(ev)}</p>
-            </div>
+            <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.80)" }}>
+              {vibeParagraph(ev)}
+            </p>
           </section>
 
           <section className="mt-12 space-y-4">
