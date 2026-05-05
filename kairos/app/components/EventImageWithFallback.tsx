@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type EventLike = {
   id?: string;
@@ -12,8 +12,8 @@ type EventLike = {
 };
 
 type PlaceholderUi = {
-  emoji: string;
-  label: string; // category label shown under the emoji
+  icon: React.ReactNode;
+  label: string;
   gradient: string;
 };
 
@@ -30,9 +30,61 @@ function safeTags(tags: EventLike["vibe_tags"]) {
 
 function getSocialContext(ev: EventLike) {
   const dna = (ev.event_dna ?? {}) as Record<string, unknown>;
-  const v =
-    dna.social_context ?? dna.socialContext ?? dna.social ?? null;
+  const v = dna.social_context ?? dna.socialContext ?? dna.social ?? null;
   return typeof v === "string" ? v.toLowerCase() : "";
+}
+
+function IconMusic() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)" aria-hidden="true">
+      <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" />
+    </svg>
+  );
+}
+
+function IconArts() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function IconComedy() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+      <line x1="9" y1="9" x2="9.01" y2="9" />
+      <line x1="15" y1="9" x2="15.01" y2="9" />
+    </svg>
+  );
+}
+
+function IconSports() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)" aria-hidden="true">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+function IconFood() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 8h1a4 4 0 0 1 0 8h-1" />
+      <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
+    </svg>
+  );
+}
+
+function IconEvent() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
 }
 
 function getPlaceholderUi(ev: EventLike): PlaceholderUi {
@@ -49,98 +101,26 @@ function getPlaceholderUi(ev: EventLike): PlaceholderUi {
   const tags = safeTags(ev.vibe_tags).map((t) => t.toLowerCase());
   const venue = (ev.venue ?? "").toLowerCase();
   const social = getSocialContext(ev);
-
   const hay = `${genre} ${tags.join(" ")} ${venue} ${social}`.toLowerCase();
+  const matchesAny = (needles: string[]) => needles.some((n) => hay.includes(n));
 
-  const matchesAny = (needles: string[]) =>
-    needles.some((n) => hay.includes(n));
-
-  // Order matters: we pick the most specific bucket first.
   if (matchesAny(["comedy"])) {
-    return {
-      emoji: "😂",
-      label: "Comedy",
-      gradient: "linear-gradient(135deg, #1e3a5f, #3b82f6)",
-    };
+    return { icon: <IconComedy />, label: "Comedy", gradient: "linear-gradient(135deg, #1e3a5f, #3b82f6)" };
   }
-
-  if (
-    matchesAny([
-      "sports",
-      "fitness",
-      "gym",
-      "workout",
-      "trail",
-      "run",
-      "running",
-      "outdoor",
-      "active",
-      "energetic",
-    ])
-  ) {
-    return {
-      emoji: "⚡",
-      label: "Sports & Fitness",
-      gradient: "linear-gradient(135deg, #064e3b, #10b981)",
-    };
+  if (matchesAny(["sports", "fitness", "gym", "workout", "trail", "run", "running", "outdoor", "active", "energetic"])) {
+    return { icon: <IconSports />, label: "Sports & Fitness", gradient: "linear-gradient(135deg, #064e3b, #10b981)" };
   }
-
-  if (
-    matchesAny([
-      "food",
-      "drink",
-      "bar",
-      "cafe",
-      "restaurant",
-      "kitchen",
-      "dining",
-      "bistro",
-      "cocktail",
-      "wine",
-      "beer",
-    ])
-  ) {
-    return {
-      emoji: "🍷",
-      label: "Food & Drink",
-      gradient: "linear-gradient(135deg, #78350f, #d97706)",
-    };
+  if (matchesAny(["food", "drink", "bar", "cafe", "restaurant", "kitchen", "dining", "bistro", "cocktail", "wine", "beer"])) {
+    return { icon: <IconFood />, label: "Food & Drink", gradient: "linear-gradient(135deg, #78350f, #d97706)" };
   }
-
-  if (
-    matchesAny([
-      "arts",
-      "culture",
-      "theatre",
-      "theater",
-      "museum",
-      "exhibition",
-      "immersive",
-      "experimental",
-      "intimate",
-      "atmospheric",
-    ])
-  ) {
-    return {
-      emoji: "🎨",
-      label: "Arts & Culture",
-      gradient: "linear-gradient(135deg, #831843, #db2777)",
-    };
+  if (matchesAny(["arts", "culture", "theatre", "theater", "museum", "exhibition", "immersive", "experimental", "intimate", "atmospheric"])) {
+    return { icon: <IconArts />, label: "Arts & Culture", gradient: "linear-gradient(135deg, #831843, #db2777)" };
   }
-
   if (matchesAny(["music", "rave", "club", "electronic", "dance", "dj", "house", "techno", "rock", "pop", "jazz", "latin", "alternative", "r&b"])) {
-    return {
-      emoji: "🎵",
-      label: "Music",
-      gradient: "linear-gradient(135deg, #4c1d95, #7c3aed)",
-    };
+    return { icon: <IconMusic />, label: "Music", gradient: "linear-gradient(135deg, #4c1d95, #7c3aed)" };
   }
 
-  return {
-    emoji: "✨",
-    label: "Event",
-    gradient: "linear-gradient(135deg, #1e1b4b, #a855f7)",
-  };
+  return { icon: <IconEvent />, label: "Event", gradient: "linear-gradient(135deg, #1e1b4b, #a855f7)" };
 }
 
 export default function EventImageWithFallback({
@@ -156,8 +136,6 @@ export default function EventImageWithFallback({
 }) {
   const dna = (event.event_dna ?? {}) as Record<string, unknown>;
 
-  // Traceable + robust src extraction:
-  // Prefer the explicit `image_url` field, then try a few common alternatives.
   const src =
     sanitizeSrc(event.image_url) ??
     sanitizeSrc((event as unknown as { imageUrl?: unknown }).imageUrl) ??
@@ -167,17 +145,42 @@ export default function EventImageWithFallback({
 
   const [imgReady, setImgReady] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
+  const imgSucceededRef = useRef(false);
 
   const placeholderUi = useMemo(() => getPlaceholderUi(event), [event]);
 
-  // Always render the fallback. If the image loads, we fade it on top of fallback.
-  // This guarantees a visible media area for demo safety.
+  // 3-second timeout: if the image hasn't confirmed real content by then, fall back.
+  useEffect(() => {
+    if (!src) return;
+    imgSucceededRef.current = false;
+    const timer = window.setTimeout(() => {
+      if (!imgSucceededRef.current) {
+        console.log("[Kairos] Image timeout (3s), falling back:", src);
+        setImgFailed(true);
+      }
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [src]);
+
+  function handleLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    if (e.currentTarget.naturalWidth === 0) {
+      // Image request succeeded but content is empty (common with Ticketmaster CDN).
+      console.log("[Kairos] Image loaded with naturalWidth=0, falling back:", src);
+      setImgFailed(true);
+    } else {
+      imgSucceededRef.current = true;
+      setImgReady(true);
+    }
+  }
+
+  function handleError() {
+    console.log("[Kairos] Image error, falling back:", src);
+    setImgFailed(true);
+  }
+
   const showImg = !!src && !imgFailed;
   const isSmall = size === "small";
-
-  const emojiClass = isSmall ? "text-2xl" : "text-3xl";
   const labelClass = isSmall ? "mt-1 text-[10px]" : "mt-2 text-[11px]";
-
   const imageState = showImg && imgReady ? "image" : "fallback";
 
   return (
@@ -187,7 +190,7 @@ export default function EventImageWithFallback({
       data-image-src={src ?? ""}
       data-image-state={imageState}
     >
-      {/* Fallback is always visible. High z-index prevents overlays from hiding it. */}
+      {/* Branded gradient fallback: always visible underneath. */}
       <div
         className="absolute inset-0 z-[50] flex items-center justify-center"
         style={{
@@ -199,20 +202,20 @@ export default function EventImageWithFallback({
       >
         <div className="flex h-full w-full flex-col items-center justify-center text-center">
           <div
-            className={emojiClass}
-            style={{ filter: "drop-shadow(0 12px 26px rgba(0,0,0,0.55))" }}
+            style={{
+              filter: "drop-shadow(0 12px 26px rgba(0,0,0,0.55))",
+              transform: isSmall ? "scale(0.75)" : undefined,
+            }}
           >
-            {placeholderUi.emoji}
+            {placeholderUi.icon}
           </div>
-          <div
-            className={labelClass + " font-semibold text-white/90 drop-shadow"}
-          >
+          <div className={labelClass + " font-semibold text-white/90 drop-shadow"}>
             {placeholderUi.label}
           </div>
         </div>
       </div>
 
-      {/* Real image (optional) fades in over fallback when ready. */}
+      {/* Real image fades in over fallback once naturalWidth > 0 is confirmed. */}
       {showImg ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -228,11 +231,10 @@ export default function EventImageWithFallback({
             transition: "opacity 280ms ease",
             zIndex: 60,
           }}
-          onLoad={() => setImgReady(true)}
-          onError={() => setImgFailed(true)}
+          onLoad={handleLoad}
+          onError={handleError}
         />
       ) : null}
     </div>
   );
 }
-
