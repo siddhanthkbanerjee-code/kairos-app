@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import EventImageWithFallback from "../components/EventImageWithFallback";
 import { EventCard } from "../components/EventCard";
 import { FilterPill } from "../components/FilterPill";
+import { RevealOnScroll } from "../components/RevealOnScroll";
 
 type RecommendResult = {
   id: string;
@@ -333,8 +334,8 @@ function Row({
 
       {expanded ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 justify-items-start">
-          {events.map((ev) => (
-            <div key={ev.id} className="w-full">
+          {events.map((ev, idx) => (
+            <RevealOnScroll key={ev.id} delay={idx * 60} className="w-full">
               <EventCard
                 ev={ev}
                 onOpen={onOpen}
@@ -342,7 +343,7 @@ function Row({
                 onToggleSave={onToggleSave}
                 variant="grid"
               />
-            </div>
+            </RevealOnScroll>
           ))}
         </div>
       ) : (
@@ -1108,22 +1109,23 @@ export default function FeedPage() {
 
             return sections
               .filter((s) => s.events.length >= 3)
-              .map((section) => (
-                <Row
-                  key={section.title}
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  events={section.events}
-                  expanded={expandedRow === section.title}
-                  onToggleExpanded={() =>
-                    setExpandedRow((r) =>
-                      r === section.title ? null : section.title
-                    )
-                  }
-                  onOpen={openEvent}
-                  savedIds={savedIds}
-                  onToggleSave={toggleSave}
-                />
+              .map((section, idx) => (
+                <RevealOnScroll key={section.title} delay={idx * 60}>
+                  <Row
+                    title={section.title}
+                    subtitle={section.subtitle}
+                    events={section.events}
+                    expanded={expandedRow === section.title}
+                    onToggleExpanded={() =>
+                      setExpandedRow((r) =>
+                        r === section.title ? null : section.title
+                      )
+                    }
+                    onOpen={openEvent}
+                    savedIds={savedIds}
+                    onToggleSave={toggleSave}
+                  />
+                </RevealOnScroll>
               ));
           })()}
         </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { RevealOnScroll } from "./components/RevealOnScroll";
 
 export default function Home() {
   useEffect(() => {
@@ -17,7 +18,11 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl">
           <p
             className="mb-6 text-[10px] font-semibold uppercase"
-            style={{ color: "#a855f7", letterSpacing: "0.38em" }}
+            style={{
+              color: "#a855f7",
+              letterSpacing: "0.38em",
+              animation: "kairos-fade-up 400ms cubic-bezier(0.4,0,0.2,1) 0ms both",
+            }}
           >
             London tonight, curated by AI
           </p>
@@ -29,6 +34,7 @@ export default function Home() {
               color: "rgba(255,255,255,0.97)",
               fontWeight: 700,
               textShadow: "0 24px 70px rgba(0,0,0,0.6)",
+              animation: "kairos-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 100ms both",
             }}
           >
             Find your perfect{" "}
@@ -51,16 +57,22 @@ export default function Home() {
               color: "rgba(255,255,255,0.56)",
               lineHeight: 1.7,
               textShadow: "0 10px 30px rgba(0,0,0,0.4)",
+              animation: "kairos-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 250ms both",
             }}
           >
             Eight questions. A hundred signals. Your nights in London,
             discovered for you alone.
           </p>
 
-          <div className="mt-12 flex flex-col items-center gap-5 sm:flex-row sm:justify-center">
+          <div
+            className="mt-12 flex flex-col items-center gap-5 sm:flex-row sm:justify-center"
+            style={{
+              animation: "kairos-fade-up 400ms cubic-bezier(0.4,0,0.2,1) 400ms both",
+            }}
+          >
             <Link
               href="/quiz"
-              className="inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none"
+              className="kairos-btn-press inline-flex h-14 items-center justify-center rounded-full px-10 text-base font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline-none"
               style={{
                 background:
                   "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)",
@@ -105,24 +117,26 @@ export default function Home() {
               body:
                 "Personalised events with match scores, AI explanations, and zero noise.",
             },
-          ].map((f) => (
-            <div key={f.num} className="space-y-3">
-              <div
-                className="text-[10px] font-semibold uppercase"
-                style={{ color: "#a855f7", letterSpacing: "0.3em" }}
-              >
-                {f.num}
+          ].map((f, i) => (
+            <RevealOnScroll key={f.num} delay={i * 80}>
+              <div className="space-y-3">
+                <div
+                  className="text-[10px] font-semibold uppercase"
+                  style={{ color: "#a855f7", letterSpacing: "0.3em" }}
+                >
+                  {f.num}
+                </div>
+                <div className="editorial text-2xl font-semibold text-white">
+                  {f.title}
+                </div>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.52)" }}
+                >
+                  {f.body}
+                </p>
               </div>
-              <div className="editorial text-2xl font-semibold text-white">
-                {f.title}
-              </div>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.52)" }}
-              >
-                {f.body}
-              </p>
-            </div>
+            </RevealOnScroll>
           ))}
         </div>
       </section>

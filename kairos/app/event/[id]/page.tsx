@@ -305,13 +305,23 @@ export default function EventDetailPage() {
     <main className="min-h-dvh" style={{ color: "#fff" }}>
       <div className="relative">
         <section className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
-          <EventImageWithFallback
-            key={`${ev.id}:${ev.image_url ?? "none"}`}
-            event={ev}
-            wrapperClassName="absolute inset-0"
-            imgClassName="absolute inset-0 h-full w-full object-cover"
-            size="default"
-          />
+          {/* Ken Burns wrapper — overflow-hidden on parent clips the scaled content */}
+          <div
+            className="absolute inset-0"
+            style={{
+              animation: "kairos-ken-burns 20s ease-in-out infinite alternate",
+              transformOrigin: "center center",
+              willChange: "transform",
+            }}
+          >
+            <EventImageWithFallback
+              key={`${ev.id}:${ev.image_url ?? "none"}`}
+              event={ev}
+              wrapperClassName="absolute inset-0"
+              imgClassName="absolute inset-0 h-full w-full object-cover"
+              size="default"
+            />
+          </div>
           <div
             className="absolute inset-0"
             style={{
@@ -389,6 +399,7 @@ export default function EventDetailPage() {
             style={{
               background: "rgba(168,85,247,0.06)",
               border: "1px solid rgba(168,85,247,0.22)",
+              animation: "kairos-fade-up 400ms cubic-bezier(0.4,0,0.2,1) 300ms both",
             }}
           >
             <div

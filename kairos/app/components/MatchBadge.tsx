@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 export function MatchBadge({
   score,
   size = "default",
@@ -7,8 +9,35 @@ export function MatchBadge({
   score: number;
   size?: "default" | "large";
 }) {
-  const pct = Math.max(0, Math.min(100, Math.round(score * 100)));
-  const isHigh = pct >= 85;
+  const target = Math.max(0, Math.min(100, Math.round(score * 100)));
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplay(target);
+      return;
+    }
+
+    const duration = 600;
+    const startTime = performance.now();
+
+    function step(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * target));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target]);
+
+  const isHigh = target >= 85;
   const isLarge = size === "large";
 
   return (
@@ -31,7 +60,7 @@ export function MatchBadge({
       }}
     >
       <span style={{ fontSize: isLarge ? "15px" : "12px", lineHeight: 1 }}>
-        {pct}%
+        {display}%
       </span>
       <span
         style={{

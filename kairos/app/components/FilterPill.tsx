@@ -13,6 +13,7 @@ export function FilterPill({
     <button
       type="button"
       onClick={onClick}
+      className="kairos-btn-press"
       style={{
         display: "inline-flex",
         alignItems: "center",

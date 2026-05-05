@@ -201,7 +201,9 @@ export default function KairosChrome({
           </button>
         </nav>
 
-        {children}
+        <div key={pathname} className="kairos-page-enter">
+          {children}
+        </div>
 
         <div
           className={[

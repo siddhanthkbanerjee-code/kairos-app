@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import EventImageWithFallback from "./EventImageWithFallback";
 import { MatchBadge } from "./MatchBadge";
 
@@ -96,6 +97,18 @@ export function EventCard({
   const category = getCategoryLabel(ev);
   const isCarousel = variant === "carousel";
 
+  // Heart pop: fire when transitioning false -> true
+  const [heartPop, setHeartPop] = useState(false);
+  const prevSavedRef = useRef(isSaved);
+  useEffect(() => {
+    if (!prevSavedRef.current && isSaved) {
+      setHeartPop(true);
+      const t = setTimeout(() => setHeartPop(false), 300);
+      return () => clearTimeout(t);
+    }
+    prevSavedRef.current = isSaved;
+  }, [isSaved]);
+
   return (
     <div
       className={isCarousel ? "w-[188px] shrink-0" : "w-full"}
@@ -183,19 +196,28 @@ export function EventCard({
               transition: "background 200ms ease, box-shadow 200ms ease",
             }}
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill={isSaved ? "#fff" : "none"}
-              stroke={isSaved ? "#fff" : "rgba(255,255,255,0.8)"}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+            <span
+              style={{
+                display: "inline-flex",
+                animation: heartPop
+                  ? "kairos-heart-pop 280ms cubic-bezier(0.22, 1, 0.36, 1) both"
+                  : undefined,
+              }}
             >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill={isSaved ? "#fff" : "none"}
+                stroke={isSaved ? "#fff" : "rgba(255,255,255,0.8)"}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </span>
           </div>
 
           {/* Match badge: top-right */}
@@ -244,9 +266,7 @@ export function EventCard({
             <div style={{ minHeight: "30px" }} />
           )}
 
-          <div
-            className="flex items-center justify-between pt-0.5"
-          >
+          <div className="flex items-center justify-between pt-0.5">
             <span
               style={{
                 fontSize: "11px",

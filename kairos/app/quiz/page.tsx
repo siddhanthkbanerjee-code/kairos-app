@@ -230,6 +230,7 @@ export default function QuizPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pulsing, setPulsing] = useState<string | null>(null);
 
   const current = QUESTIONS[index];
 
@@ -473,14 +474,22 @@ export default function QuizPage() {
                       type="button"
                       onClick={() => {
                         if (isSubmitting) return;
+                        setPulsing(opt);
                         updateAnswer(current.id, opt);
                         if (current.id === "discoveryScore") return;
                         window.setTimeout(() => {
+                          setPulsing(null);
                           advanceToNextCard();
-                        }, 40);
+                        }, 160);
                       }}
                       disabled={isSubmitting}
                       className={optionClassName(selected)}
+                      style={{
+                        animation:
+                          pulsing === opt
+                            ? "kairos-pulse-select 160ms ease-out"
+                            : undefined,
+                      }}
                     >
                       <div className="text-base font-medium text-white">{opt}</div>
                     </button>
@@ -558,7 +567,7 @@ export default function QuizPage() {
                 "inline-flex h-12 w-full items-center justify-center rounded-2xl px-6 text-sm font-semibold",
                 "transition-all duration-200 ease-out",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0",
-                canContinue() ? "text-white" : "cursor-not-allowed text-white/45",
+                canContinue() ? "text-white kairos-btn-press" : "cursor-not-allowed text-white/45",
               ].join(" ")}
               style={{
                 background: canContinue() ? ACCENT : "rgba(255,255,255,0.08)",

@@ -399,3 +399,68 @@ body {
 /* ─── Utility ──────────────────────────────────────────────────────────── */
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Motion keyframes ─────────────────────────────────────────────────── */
+@keyframes kairos-page-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes kairos-fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes kairos-ken-burns {
+  from { transform: scale(1.0); }
+  to   { transform: scale(1.07); }
+}
+
+@keyframes kairos-heart-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.35); }
+  65%  { transform: scale(0.90); }
+  100% { transform: scale(1); }
+}
+
+@keyframes kairos-pulse-select {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(0.97); }
+  75%  { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+/* ─── Motion utility classes ───────────────────────────────────────────── */
+.kairos-page-enter {
+  animation: kairos-page-in 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Reveal-on-scroll: initial hidden state */
+.kairos-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+/* Revealed state (applied by IntersectionObserver) */
+.kairos-reveal.revealed {
+  animation: kairos-fade-up 520ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Button press scale */
+.kairos-btn-press:active {
+  transform: scale(0.97) !important;
+  transition: transform 100ms ease !important;
+}
+
+/* Overrides for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .kairos-page-enter {
+    animation: none;
+  }
+  .kairos-reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .kairos-reveal.revealed {
+    animation: none;
+  }
+}
