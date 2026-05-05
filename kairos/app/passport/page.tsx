@@ -318,7 +318,7 @@ export default function PassportPage() {
             <div className="space-y-5">
               <div className="editorial text-2xl font-semibold text-white">Your radar</div>
               <div className="space-y-4">
-                {axes.map((a) => (
+                {axes.map((a, index) => (
                   <div key={a.k}>
                     <div className="mb-1.5 flex items-center justify-between">
                       <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
@@ -333,6 +333,7 @@ export default function PassportPage() {
                         className="h-full rounded-full transition-[width] duration-700 ease-out"
                         style={{
                           width: animateBars ? `${a.v}%` : "0%",
+                          transitionDelay: `${index * 80}ms`,
                           background: `linear-gradient(90deg, ${ACCENT} 0%, ${ACCENT_2} 100%)`,
                         }}
                       />

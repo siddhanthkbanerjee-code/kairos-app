@@ -432,7 +432,7 @@ export default function QuizPage() {
             </button>
           </div>
 
-          <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-px w-full overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full transition-[width] duration-400 ease-out"
               style={{

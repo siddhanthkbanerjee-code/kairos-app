@@ -16,9 +16,9 @@ export default function AboutPage() {
           </p>
           <p>
             Kairos uses AI to understand your cultural taste at a deeper level
-            than “popular near you.” We learn the shape of your nights — the
+            than “popular near you.” We learn the shape of your nights: the
             energy, the setting, the social context, and what you actually want
-            to feel — and then surface the events that match that profile.
+            to feel. We then surface the events that match that profile.
           </p>
           <p>
             The taste quiz is the start: it captures how you move through the
@@ -28,7 +28,7 @@ export default function AboutPage() {
           </p>
           <p>
             The vision is simple: a city that feels curated. Not by influencers,
-            not by algorithms chasing virality — by your taste, in the moment
+            not by algorithms chasing virality. By your taste, in the moment
             it matters.
           </p>
         </div>

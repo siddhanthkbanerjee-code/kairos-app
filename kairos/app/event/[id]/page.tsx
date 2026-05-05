@@ -99,9 +99,15 @@ function computeBars(ev: RecommendResult, userGenres: string[]) {
   return [
     { label: "Energy", value: energy, reason: "Matches your night-time intensity." },
     { label: "Vibe", value: vibe, reason: overlap ? "Shared tags with your taste profile." : "A close cousin to your usual picks." },
-    { label: "Timing", value: timing, reason: isLate ? "Starts after 20:00 — prime time." : "Earlier start for an easy night." },
+    { label: "Timing", value: timing, reason: isLate ? "Starts after 20:00. Prime time." : "Earlier start for an easy night." },
     { label: "Discovery", value: discovery, reason: "Right level of unfamiliar for you." },
   ];
+}
+
+function getAiExplanation(ev: RecommendResult) {
+  const dna = (ev.event_dna ?? {}) as Record<string, unknown>;
+  const exp = dna.ai_explanation ?? dna.explanation ?? dna.why ?? null;
+  return typeof exp === "string" && exp.trim().length > 0 ? exp.trim() : null;
 }
 
 function vibeParagraph(ev: RecommendResult) {
@@ -338,6 +344,7 @@ export default function EventDetailPage() {
               willChange: "transform",
             }}
           >
+            {/* overflow-hidden on the parent section clips the scaled content */}
             <EventImageWithFallback
               key={`${ev.id}:${ev.image_url ?? "none"}`}
               event={ev}
@@ -439,7 +446,7 @@ export default function EventDetailPage() {
               Kairos AI
             </div>
             <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.80)" }}>
-              {vibeParagraph(ev)}
+              {getAiExplanation(ev) ?? vibeParagraph(ev)}
             </p>
           </section>
 
@@ -637,7 +644,7 @@ export default function EventDetailPage() {
                 boxShadow: "0 18px 60px rgba(168,85,247,0.22)",
               }}
             >
-              Get Tickets — {priceLabel}
+              Get Tickets · {priceLabel}
             </a>
           </div>
         </div>

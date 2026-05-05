@@ -987,7 +987,7 @@ export default function FeedPage() {
           style={{ borderLeft: `4px solid ${ACCENT}` }}
         >
           <div className="text-sm text-white/70">
-            Personalised by Kairos AI -- every match score is calculated from your taste profile.
+            Personalised by Kairos AI. Every match score is calculated from your taste profile.
           </div>
           <button
             type="button"
@@ -1054,7 +1054,7 @@ export default function FeedPage() {
                   <div className="text-sm text-white/70">
                     {[featured.venue, formatEventDate(featured.date)]
                       .filter(Boolean)
-                      .join(" • ") || "—"}
+                      .join(" • ") || "No details"}
                   </div>
                   {safeExplanation(getAiExplanation(featured)) ? (
                     <div className="max-w-3xl text-sm text-white/60 line-clamp-2">

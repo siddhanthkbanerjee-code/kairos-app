@@ -105,22 +105,22 @@ function getPlaceholderUi(ev: EventLike): PlaceholderUi {
   const matchesAny = (needles: string[]) => needles.some((n) => hay.includes(n));
 
   if (matchesAny(["comedy"])) {
-    return { icon: <IconComedy />, label: "Comedy", gradient: "linear-gradient(135deg, #1e3a5f, #3b82f6)" };
+    return { icon: <IconComedy />, label: "Comedy", gradient: "linear-gradient(135deg, #6366f1, #a855f7)" };
   }
   if (matchesAny(["sports", "fitness", "gym", "workout", "trail", "run", "running", "outdoor", "active", "energetic"])) {
-    return { icon: <IconSports />, label: "Sports & Fitness", gradient: "linear-gradient(135deg, #064e3b, #10b981)" };
+    return { icon: <IconSports />, label: "Sports & Fitness", gradient: "linear-gradient(160deg, #a855f7, #6366f1)" };
   }
   if (matchesAny(["food", "drink", "bar", "cafe", "restaurant", "kitchen", "dining", "bistro", "cocktail", "wine", "beer"])) {
-    return { icon: <IconFood />, label: "Food & Drink", gradient: "linear-gradient(135deg, #78350f, #d97706)" };
+    return { icon: <IconFood />, label: "Food & Drink", gradient: "linear-gradient(135deg, #f472b6, #a855f7)" };
   }
   if (matchesAny(["arts", "culture", "theatre", "theater", "museum", "exhibition", "immersive", "experimental", "intimate", "atmospheric"])) {
-    return { icon: <IconArts />, label: "Arts & Culture", gradient: "linear-gradient(135deg, #831843, #db2777)" };
+    return { icon: <IconArts />, label: "Arts & Culture", gradient: "linear-gradient(135deg, rgba(168,85,247,0.75), #6366f1)" };
   }
   if (matchesAny(["music", "rave", "club", "electronic", "dance", "dj", "house", "techno", "rock", "pop", "jazz", "latin", "alternative", "r&b"])) {
-    return { icon: <IconMusic />, label: "Music", gradient: "linear-gradient(135deg, #4c1d95, #7c3aed)" };
+    return { icon: <IconMusic />, label: "Music", gradient: "linear-gradient(135deg, #a855f7, #f472b6)" };
   }
 
-  return { icon: <IconEvent />, label: "Event", gradient: "linear-gradient(135deg, #1e1b4b, #a855f7)" };
+  return { icon: <IconEvent />, label: "Event", gradient: "linear-gradient(135deg, rgba(99,102,241,0.55), #a855f7)" };
 }
 
 export default function EventImageWithFallback({

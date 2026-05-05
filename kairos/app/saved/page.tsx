@@ -143,7 +143,7 @@ export default function SavedPage() {
                 boxShadow: "0 0 32px rgba(168,85,247,0.35)",
               }}
             >
-              Go to feed
+              Find your moment.
             </Link>
           </section>
         ) : (

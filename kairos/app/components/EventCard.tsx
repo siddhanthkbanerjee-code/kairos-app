@@ -256,7 +256,7 @@ export function EventCard({
               fontFamily: "var(--font-body), system-ui, sans-serif",
             }}
           >
-            {venueLine || "—"}
+            {venueLine || "No details"}
           </p>
 
           {explanation ? (
