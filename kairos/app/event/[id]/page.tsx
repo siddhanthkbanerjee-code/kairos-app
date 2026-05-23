@@ -335,7 +335,7 @@ export default function EventDetailPage() {
     <main className="min-h-dvh" style={{ color: "#fff" }}>
       <div className="relative">
         <section className="relative h-[40vh] sm:h-[60vh] min-h-[280px] sm:min-h-[400px] w-full overflow-hidden">
-          {/* Ken Burns wrapper — overflow-hidden on parent clips the scaled content */}
+          {/* Ken Burns wrapper: overflow-hidden on parent clips the scaled content */}
           <div
             className="absolute inset-0 kairos-ken-burns-wrapper"
             style={{
@@ -576,7 +576,7 @@ export default function EventDetailPage() {
                       {s.title ?? "Untitled event"}
                     </div>
                     <div className="mt-1 text-xs text-white/55">
-                      {[s.venue, formatEventDate(s.date)].filter(Boolean).join(" • ") || "—"}
+                      {[s.venue, formatEventDate(s.date)].filter(Boolean).join(" • ") || "Details TBC"}
                     </div>
                   </div>
                   <div className="pr-4 text-sm font-semibold" style={{ color: ACCENT }}>
