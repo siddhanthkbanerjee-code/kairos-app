@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 export function MatchBadge({
   score,
@@ -40,8 +41,25 @@ export function MatchBadge({
   const isHigh = target >= 85;
   const isLarge = size === "large";
 
+  const restingShadow = isHigh
+    ? "0 0 18px rgba(168,85,247,0.55), 0 0 40px rgba(168,85,247,0.2)"
+    : "0 2px 12px rgba(168,85,247,0.25)";
+
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, boxShadow: "0 0 0 0 rgba(168, 85, 247, 0)" }}
+      animate={{
+        opacity: 1,
+        boxShadow: [
+          "0 0 0 0 rgba(168, 85, 247, 0)",
+          "0 0 24px 4px rgba(168, 85, 247, 0.5)",
+          restingShadow,
+        ],
+      }}
+      transition={{
+        opacity: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+        boxShadow: { duration: 1.2, ease: "easeOut" },
+      }}
       style={{
         display: "inline-flex",
         alignItems: "baseline",
@@ -53,9 +71,6 @@ export function MatchBadge({
         fontWeight: 600,
         color: "#fff",
         letterSpacing: "0.01em",
-        boxShadow: isHigh
-          ? "0 0 18px rgba(168,85,247,0.55), 0 0 40px rgba(168,85,247,0.2)"
-          : "0 2px 12px rgba(168,85,247,0.25)",
         whiteSpace: "nowrap",
       }}
     >
@@ -72,6 +87,6 @@ export function MatchBadge({
       >
         match
       </span>
-    </div>
+    </motion.div>
   );
 }

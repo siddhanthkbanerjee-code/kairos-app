@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
     "@pinecone-database/pinecone": "^7.1.0",
+    "framer-motion": "^12.40.0",
     "next": "16.1.7",
     "openai": "^6.32.0",
     "react": "19.2.3",

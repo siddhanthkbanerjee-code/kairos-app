@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import EventImageWithFallback from "../../components/EventImageWithFallback";
 import { MatchBadge } from "../../components/MatchBadge";
 
@@ -203,6 +204,7 @@ function FriendCard({
 
 export default function EventDetailPage() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const [ev, setEv] = useState<RecommendResult | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [animateBars, setAnimateBars] = useState(false);
@@ -336,13 +338,11 @@ export default function EventDetailPage() {
       <div className="relative">
         <section className="relative h-[40vh] sm:h-[60vh] min-h-[280px] sm:min-h-[400px] w-full overflow-hidden">
           {/* Ken Burns wrapper: overflow-hidden on parent clips the scaled content */}
-          <div
+          <motion.div
             className="absolute inset-0 kairos-ken-burns-wrapper"
-            style={{
-              animation: "kairos-ken-burns 20s ease-in-out infinite alternate",
-              transformOrigin: "center center",
-              willChange: "transform",
-            }}
+            style={{ willChange: "transform", transformOrigin: "55% 45%" }}
+            animate={prefersReducedMotion ? {} : { scale: [1, 1.08, 1] }}
+            transition={{ duration: 20, ease: "linear", repeat: Infinity }}
           >
             {/* overflow-hidden on the parent section clips the scaled content */}
             <EventImageWithFallback
@@ -352,7 +352,7 @@ export default function EventDetailPage() {
               imgClassName="absolute inset-0 h-full w-full object-cover"
               size="default"
             />
-          </div>
+          </motion.div>
           <div
             className="absolute inset-0"
             style={{

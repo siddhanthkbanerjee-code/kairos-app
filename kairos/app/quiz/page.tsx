@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 type QuizAnswers = {
   timeOfDay?: string;
@@ -219,6 +220,7 @@ function getAnswerForQuestion(q: AnyQuestion, answers: QuizAnswers) {
 
 export default function QuizPage() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
 
   const total = QUESTIONS.length; // 8
   const [index, setIndex] = useState(0);
@@ -227,8 +229,6 @@ export default function QuizPage() {
     genres: [],
   });
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionKey, setTransitionKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pulsing, setPulsing] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -383,13 +383,7 @@ export default function QuizPage() {
       void submitAndGoFeed(answers);
       return;
     }
-
-    setIsTransitioning(true);
-    window.setTimeout(() => {
-      setIndex((i) => Math.min(i + 1, total - 1));
-      setTransitionKey((k) => k + 1);
-      setIsTransitioning(false);
-    }, 260);
+    setIndex((i) => Math.min(i + 1, total - 1));
   }
 
   function next() {
@@ -443,14 +437,21 @@ export default function QuizPage() {
           </div>
         </header>
 
-        <section
-          key={transitionKey}
-          className={[
-            glassCardClassName(),
-            "px-6 pb-6 pt-6 sm:px-8 sm:pb-7 sm:pt-7",
-            "transition-all duration-400 ease-out",
-            isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0",
-          ].join(" ")}
+        <AnimatePresence mode="wait">
+        <motion.section
+          key={index}
+          className={[glassCardClassName(), "px-6 pb-6 pt-6 sm:px-8 sm:pb-7 sm:pt-7"].join(" ")}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            transition: { duration: prefersReducedMotion ? 0 : 0.4, ease: [0.16, 1, 0.3, 1] },
+          }}
+          exit={{
+            opacity: 0,
+            y: prefersReducedMotion ? 0 : -20,
+            transition: { duration: prefersReducedMotion ? 0 : 0.3, ease: [0.16, 1, 0.3, 1] },
+          }}
         >
           <div className="mb-5 flex items-center justify-between">
             <div className="text-xs font-semibold tracking-[0.22em] text-white/60 uppercase">
@@ -483,14 +484,14 @@ export default function QuizPage() {
                         window.setTimeout(() => {
                           setPulsing(null);
                           advanceToNextCard();
-                        }, 160);
+                        }, 250);
                       }}
                       disabled={isSubmitting}
                       className={optionClassName(selected)}
                       style={{
                         animation:
                           pulsing === opt
-                            ? "kairos-pulse-select 160ms ease-out"
+                            ? "kairos-pulse-select 250ms ease-out"
                             : undefined,
                       }}
                     >
@@ -593,7 +594,8 @@ export default function QuizPage() {
               </p>
             ) : null}
           </div>
-        </section>
+        </motion.section>
+        </AnimatePresence>
       </div>
     </main>
   );

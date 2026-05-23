@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import EventImageWithFallback from "../components/EventImageWithFallback";
 import { EventCard } from "../components/EventCard";
 import { FilterPill } from "../components/FilterPill";
-import { RevealOnScroll } from "../components/RevealOnScroll";
+import { motion } from "framer-motion";
 
 type RecommendResult = {
   id: string;
@@ -335,7 +335,18 @@ function Row({
       {expanded ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 justify-items-start">
           {events.map((ev, idx) => (
-            <RevealOnScroll key={ev.id} delay={idx * 60} className="w-full">
+            <motion.div
+              key={ev.id}
+              className="w-full"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1],
+                delay: Math.min(idx * 0.05, 0.4),
+              }}
+            >
               <EventCard
                 ev={ev}
                 onOpen={onOpen}
@@ -343,7 +354,7 @@ function Row({
                 onToggleSave={onToggleSave}
                 variant="grid"
               />
-            </RevealOnScroll>
+            </motion.div>
           ))}
         </div>
       ) : (
@@ -358,15 +369,26 @@ function Row({
           className="no-scrollbar flex gap-4 overflow-x-auto pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {events.map((ev) => (
-            <EventCard
+          {events.map((ev, idx) => (
+            <motion.div
               key={ev.id}
-              ev={ev}
-              onOpen={onOpen}
-              isSaved={savedIds.includes(ev.id)}
-              onToggleSave={onToggleSave}
-              variant="carousel"
-            />
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1],
+                delay: Math.min(idx * 0.05, 0.4),
+              }}
+            >
+              <EventCard
+                ev={ev}
+                onOpen={onOpen}
+                isSaved={savedIds.includes(ev.id)}
+                onToggleSave={onToggleSave}
+                variant="carousel"
+              />
+            </motion.div>
           ))}
         </div>
       )}
@@ -1169,7 +1191,17 @@ export default function FeedPage() {
             }
 
             return visibleSections.map((section, idx) => (
-              <RevealOnScroll key={section.title} delay={idx * 60}>
+              <motion.div
+                key={section.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.5,
+                  ease: [0.16, 1, 0.3, 1],
+                  delay: Math.min(idx * 0.05, 0.4),
+                }}
+              >
                 <Row
                   title={section.title}
                   subtitle={section.subtitle}
@@ -1184,7 +1216,7 @@ export default function FeedPage() {
                   savedIds={savedIds}
                   onToggleSave={toggleSave}
                 />
-              </RevealOnScroll>
+              </motion.div>
             ));
           })()}
         </div>
