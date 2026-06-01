@@ -4,6 +4,41 @@ Each entry summarises what shipped in a session. Most recent first.
 
 ---
 
+## 2026-05-31: Brief 1 quick wins + Brief 2 dataset rebuild (scripts and schema)
+
+### Brief 1: Quick wins (shipped and build-verified)
+
+1. **Past-event filter** (`app/api/recommend/route.ts`): After boost and sort, filters result set with `new Date()` computed at request time. Events with missing or unparseable dates are kept. Pinecone query, embedding logic, score rescaling, and 1.2x multiplier untouched.
+
+2. **FilterPill uniform sizing** (`app/components/FilterPill.tsx`, `app/feed/page.tsx`): Container changed from `flex flex-wrap` to `grid grid-cols-3 gap-2`. Button display changed to `flex` with `width: 100%`. Brand styling unchanged.
+
+3. **About in hamburger** (`app/components/KairosChrome.tsx`): Added `<Link href="/about">About</Link>` between Saved Events and Settings using existing nav link styles.
+
+### Brief 2: Dataset rebuild (scripts and schema ready, script not yet run)
+
+**What shipped:**
+
+- `scripts/build-events.mjs`: Resumable build script (no new packages required). Five phases: descriptions (Claude Sonnet 4.5, batches of 5), images (DALL-E 3 HD 1792x1024 vivid, 13s rate-limit gap), embeddings (text-embedding-3-large), Pinecone upsert (delete-then-upsert, batches of 100), and events.json write. Pauses automatically after image 150 for sanity check. Checkpoint at `data/events-checkpoint.json` per event. Run with: `node --env-file=.env.local scripts/build-events.mjs`
+
+- `data/event-seeds.json`: 300 curated event seeds. Breakdown by category: music 60, nightlife 50, comedy 35, food 40, arts 40, sports 25, wellness 25, misc 25. Fabrication: 243 fabricated (81%), 57 real venue. No duplicate IDs confirmed.
+
+- `app/api/recommend/route.ts`: Added `computeEventDate()` (reads `date_offset_days` + `date_offset_hours` from Pinecone metadata, computes live date; falls back to legacy `start_date` for any old vectors). Added `parseEventDna()` (handles event_dna stored as JSON string or object). Both helpers sit above the POST handler.
+
+- `ANTHROPIC_API_KEY` added to `.env.local` only. Not committed, not pushed to Vercel.
+
+**What the script costs when run:**
+- DALL-E 3 HD landscape: $0.08 x 300 = $24.00 total
+- OpenAI embeddings: negligible (sub-$0.01)
+- Claude API for descriptions: sub-$1.00 estimated
+
+**Pinecone strategy:** delete-then-upsert. Existing vector count logged before delete. No namespace juggling.
+
+**Script not yet run.** Pending: user confirms budget ($24 DALL-E) and runs `node --env-file=.env.local scripts/build-events.mjs`. First pause at image 150 for sanity check.
+
+**Verified:** `npm run build` zero errors (Next.js 16.1.7, Turbopack).
+
+---
+
 ## 2026-05-23: Phase 6, motion pass
 
 **Scope:** Four motion moments using Framer Motion 12.40.0. No framework version changes. No breaking changes to existing animations.

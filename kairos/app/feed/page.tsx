@@ -790,7 +790,7 @@ export default function FeedPage() {
           </p>
         </header>
 
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-5 grid grid-cols-3 gap-2">
           {([
             { id: "solo", label: "Solo" },
             { id: "date", label: "Date Night" },

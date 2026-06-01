@@ -21,6 +21,28 @@ type RecommendResult = {
   event_dna: Record<string, unknown> | null;
 };
 
+function computeEventDate(metadata: Record<string, unknown>): string | null {
+  const offsetDays = metadata.date_offset_days;
+  const offsetHours = metadata.date_offset_hours;
+  if (typeof offsetDays === "number" && typeof offsetHours === "number") {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    d.setHours(offsetHours, 0, 0, 0);
+    return d.toISOString();
+  }
+  // Legacy fallback for any old vectors still in the index
+  return (metadata.start_date as string) ?? null;
+}
+
+function parseEventDna(metadata: Record<string, unknown>): Record<string, unknown> | null {
+  const raw = metadata.event_dna;
+  if (!raw) return null;
+  if (typeof raw === "string") {
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+  return raw as Record<string, unknown>;
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -159,12 +181,12 @@ export async function POST(req: NextRequest) {
           score: match.score ?? 0,
           title: (metadata.name as string) ?? null,
           venue: (metadata.venue_name as string) ?? null,
-          date: (metadata.start_date as string) ?? null,
+          date: computeEventDate(metadata),
           price_display: (metadata.price_display as string) ?? null,
           image_url: (metadata.image_url as string) ?? null,
           url: (metadata.url as string) ?? null,
           vibe_tags: (metadata.vibe_tags as string[]) ?? null,
-          event_dna: (metadata.event_dna as Record<string, unknown>) ?? null,
+          event_dna: parseEventDna(metadata),
         };
       }) ?? [];
 
@@ -197,7 +219,17 @@ export async function POST(req: NextRequest) {
 
     boosted.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
-    return NextResponse.json({ results: boosted });
+    // Drop events whose date is confirmed in the past. Events with no date or
+    // an unparseable date are kept to avoid silent data loss.
+    const now = new Date();
+    const future = boosted.filter((r) => {
+      if (!r.date) return true;
+      const d = new Date(r.date);
+      if (Number.isNaN(d.getTime())) return true;
+      return d >= now;
+    });
+
+    return NextResponse.json({ results: future });
   } catch (error) {
     console.error("Error in /api/recommend:", error);
 

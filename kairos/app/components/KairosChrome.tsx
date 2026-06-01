@@ -236,6 +236,9 @@ export default function KairosChrome({
             <Link href="/saved" onClick={() => setDrawerOpen(false)}>
               Saved Events
             </Link>
+            <Link href="/about" onClick={() => setDrawerOpen(false)}>
+              About
+            </Link>
             <Link href="/settings" onClick={() => setDrawerOpen(false)}>
               Settings
             </Link>

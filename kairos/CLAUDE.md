@@ -176,13 +176,11 @@ Updated by Claude Code at the end of each session.
 ### Phase 1 complete (2026-05-05)
 
 - Repo consolidated. Single canonical folder: `C:\Users\rb110\Documents\CafeCursor\kairos\`
-- Git repo root is `CafeCursor\` (one level up), tracking `origin/master` at `https://github.com/siddhanthkbanerjee-code/Kairos.git`
-- All in-progress work committed in three logical commits (be8862e, 6b5a680, ae98a08) and pushed to `origin/master`
-- Vercel project (`kairos-deploy-sigma.vercel.app`) watches `master` branch. Live URL confirmed serving. Auto-deploy trigger needs manual verification in Vercel dashboard (MCP had no access).
-- Parent-level files (`kairos-deploy/`, `index.html`, `script.js`, `style.css`) archived to `C:\Users\rb110\Documents\CafeCursor\_archive\`. Not deleted.
+- Git repo root is `CafeCursor\` (one level up). Canonical GitHub repo: `https://github.com/siddhanthkbanerjee-code/kairos-app.git` (remote name: `kairos-app`, branch: `main`).
+- All in-progress work committed and pushed to kairos-app/main.
+- Vercel project (`kairos-psi.vercel.app`) connected to `siddhanthkbanerjee-code/kairos-app`, watches `main` branch. Auto-deploy confirmed working.
+- Stale repos `Kairos` and `kairos-deploy` archived on GitHub (2026-06-01). Stale Vercel project `kairos-deploy-sigma` pending manual deletion.
 - `npm run build` passes with zero errors (Next.js 16.1.7, Turbopack).
-- CLAUDE.md and CURRENT_TASK.md are currently untracked (not yet committed). Stage and commit these when ready.
-- Next: Phase 2 (image loading bug fix).
 
 ---
 
