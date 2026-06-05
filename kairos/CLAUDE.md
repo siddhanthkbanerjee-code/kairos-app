@@ -182,6 +182,15 @@ Updated by Claude Code at the end of each session.
 - Stale repos `Kairos` and `kairos-deploy` archived on GitHub (2026-06-01). Stale Vercel project `kairos-deploy-sigma` pending manual deletion.
 - `npm run build` passes with zero errors (Next.js 16.1.7, Turbopack).
 
+### Phase 2 complete (2026-06-01)
+
+- 300 AI-generated events in Pinecone (text-embedding-3-large, 3072 dims). Images converted from 631 MB PNG to 18 MB WebP (quality 85) in `public/events/`.
+- Vercel root directory updated from `./` to `kairos` to match local repo structure (files live under `kairos/` subdir).
+- Local branch renamed from `master` to `main`. Remote `kairos-app` now tracks `https://github.com/siddhanthkbanerjee-code/kairos-app.git`. Dead `origin` remote (archived `Kairos.git`) removed.
+- Env vars (OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX, ANTHROPIC_API_KEY) confirmed set in Vercel production environment.
+- Live feed at `kairos-psi.vercel.app` confirmed returning events with WebP images and AI explanations.
+- Past-event filter, FilterPill uniform grid, About nav link also shipped this session.
+
 ---
 
 ## Current session task
