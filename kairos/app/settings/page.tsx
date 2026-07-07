@@ -55,6 +55,12 @@ export default function SettingsPage() {
       <div className="mx-auto w-full max-w-4xl px-5 pb-14 pt-10 sm:px-8">
         <header className="mb-8 flex items-end justify-between">
           <div>
+            <p
+              className="mb-3 text-[10px] font-semibold uppercase"
+              style={{ color: "#a855f7", letterSpacing: "0.32em" }}
+            >
+              Controls
+            </p>
             <h1 className="editorial text-4xl font-semibold text-white sm:text-5xl">
               Settings
             </h1>
@@ -144,4 +150,3 @@ export default function SettingsPage() {
     </main>
   );
 }
-

@@ -13,6 +13,8 @@
   --text-muted:       rgba(255, 255, 255, 0.35);
   --navText:          rgba(255, 255, 255, 0.88);
   --navIcon:          rgba(255, 255, 255, 0.75);
+  --ease-standard:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-reveal:      cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -81,7 +83,7 @@ body {
 .kairos-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(80px) saturate(1.15);
   will-change: transform, border-radius;
 }
 
@@ -188,6 +190,68 @@ body {
   .kairos-blob { animation: none; }
 }
 
+/* ─── Atmosphere: film grain ──────────────────────────────────────────── */
+.kairos-grain {
+  position: fixed;
+  inset: -100%;
+  z-index: 80;
+  pointer-events: none;
+  width: 300%;
+  height: 300%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.042;
+  animation: kairos-grain-shift 1.2s steps(4) infinite;
+}
+
+@keyframes kairos-grain-shift {
+  0%   { transform: translate3d(0, 0, 0); }
+  25%  { transform: translate3d(-2.5%, 1.5%, 0); }
+  50%  { transform: translate3d(1.5%, -2%, 0); }
+  75%  { transform: translate3d(-1%, -1%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ─── Atmosphere: vignette ────────────────────────────────────────────── */
+.kairos-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 38%,
+    transparent 52%,
+    rgba(0, 0, 0, 0.10) 76%,
+    rgba(0, 0, 0, 0.34) 100%
+  );
+}
+
+/* ─── Atmosphere: cursor spotlight ────────────────────────────────────── */
+.kairos-spotlight {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.09) 0%,
+    rgba(244, 114, 182, 0.045) 38%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 900ms ease;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kairos-grain { animation: none; }
+  .kairos-spotlight { display: none; }
+}
+
 /* ─── Layout shell ─────────────────────────────────────────────────────── */
 .kairos-content {
   position: relative;
@@ -204,20 +268,104 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
+  padding: 16px 20px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  background: rgba(10, 10, 18, 0.6);
+  background: rgba(10, 10, 18, 0.55);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .kairos-wordmark {
   font-family: var(--font-editorial), Georgia, serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--navText);
   letter-spacing: 0.02em;
   text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kairos-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.kairos-nav-links {
+  display: none;
+  align-items: center;
+  gap: 26px;
+}
+
+@media (min-width: 820px) {
+  .kairos-nav-links { display: flex; }
+}
+
+.kairos-nav-link {
+  position: relative;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color 200ms var(--ease-standard);
+}
+
+.kairos-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-rose));
+  transition: right 260ms var(--ease-standard);
+}
+
+.kairos-nav-link:hover,
+.kairos-nav-link.active {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.kairos-nav-link:hover::after,
+.kairos-nav-link.active::after {
+  right: 0;
+}
+
+.kairos-nav-clock {
+  display: none;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.35);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .kairos-nav-clock { display: inline-flex; align-items: center; gap: 7px; }
+}
+
+/* ─── Live dot ─────────────────────────────────────────────────────────── */
+.kairos-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-rose);
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.85);
+  animation: kairos-live 2.6s ease-in-out infinite;
+}
+
+@keyframes kairos-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.78); }
 }
 
 /* ─── Hamburger ────────────────────────────────────────────────────────── */
@@ -330,7 +478,8 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 15px;
   text-decoration: none;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease,
+    transform 200ms var(--ease-standard);
 }
 
 .kairos-drawer-links a:hover,
@@ -338,26 +487,37 @@ body {
   background: rgba(168, 85, 247, 0.08);
   border-color: rgba(168, 85, 247, 0.25);
   color: #fff;
+  transform: translateX(4px);
 }
 
 /* ─── EventCard hover (no styled-jsx) ─────────────────────────────────── */
 .kairos-event-card {
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  transition: transform 260ms var(--ease-standard), box-shadow 260ms var(--ease-standard),
+    border-color 260ms var(--ease-standard);
   cursor: pointer;
 }
 
 .kairos-event-card:hover {
   transform: translateY(-5px);
   border-color: rgba(168, 85, 247, 0.4) !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(168, 85, 247, 0.25) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(168, 85, 247, 0.25),
+    0 0 44px rgba(168, 85, 247, 0.12) !important;
 }
 
 .kairos-event-card:hover .kairos-event-image {
-  filter: brightness(1.06);
+  filter: brightness(1.07);
 }
 
 .kairos-event-image {
-  transition: filter 200ms ease;
+  transition: filter 300ms ease;
+}
+
+.kairos-event-image img {
+  transition: transform 1100ms var(--ease-reveal), opacity 280ms ease !important;
+}
+
+.kairos-event-card:hover .kairos-event-image img {
+  transform: scale(1.055);
 }
 
 /* ─── Slider (quiz discovery dial) ────────────────────────────────────── */
@@ -399,6 +559,23 @@ body {
 /* ─── Utility ──────────────────────────────────────────────────────────── */
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+.kairos-edge-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 28px,
+    black calc(100% - 36px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 28px,
+    black calc(100% - 36px),
+    transparent 100%
+  );
+}
 
 /* ─── Global focus ring (keyboard only) ───────────────────────────────── */
 :focus-visible {
@@ -443,28 +620,215 @@ body {
   100% { transform: scale(1); }
 }
 
+/* ─── Editorial reveals ────────────────────────────────────────────────── */
+.kairos-line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.kairos-line-mask > span {
+  display: block;
+  transform: translateY(112%);
+  animation: kairos-line-up 950ms var(--ease-reveal) both;
+}
+
+@keyframes kairos-line-up {
+  to { transform: translateY(0); }
+}
+
+.kairos-gradient-text {
+  background-image: linear-gradient(
+    110deg,
+    var(--accent-purple) 0%,
+    var(--accent-rose) 34%,
+    var(--accent-indigo) 62%,
+    var(--accent-purple) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: kairos-gradient-pan 7s ease-in-out infinite;
+}
+
+@keyframes kairos-gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* ─── Marquee ──────────────────────────────────────────────────────────── */
+.kairos-marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+.kairos-marquee-track {
+  display: inline-flex;
+  align-items: baseline;
+  width: max-content;
+  animation: kairos-marquee 46s linear infinite;
+}
+
+.kairos-marquee:hover .kairos-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes kairos-marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kairos-marquee-track { animation: none; }
+}
+
+/* ─── Skeleton shimmer ─────────────────────────────────────────────────── */
+.kairos-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+}
+
+.kairos-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(168, 85, 247, 0.10),
+    rgba(244, 114, 182, 0.06),
+    transparent
+  );
+  animation: kairos-shimmer 1.7s var(--ease-standard) infinite;
+}
+
+@keyframes kairos-shimmer {
+  to { transform: translateX(100%); }
+}
+
+/* ─── Footer ───────────────────────────────────────────────────────────── */
+.kairos-footer-ghost {
+  font-family: var(--font-editorial), Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(110px, 21vw, 300px);
+  line-height: 0.78;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.025);
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ─── Orb loader (quiz interstitial) ───────────────────────────────────── */
+.kairos-orb {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 32%,
+    rgba(244, 114, 182, 0.85) 0%,
+    rgba(168, 85, 247, 0.9) 42%,
+    rgba(99, 102, 241, 0.75) 78%,
+    rgba(99, 102, 241, 0.4) 100%
+  );
+  filter: blur(1px);
+  box-shadow:
+    0 0 60px rgba(168, 85, 247, 0.55),
+    0 0 140px rgba(168, 85, 247, 0.3),
+    0 0 220px rgba(244, 114, 182, 0.18);
+  animation: kairos-orb-breathe 3.4s ease-in-out infinite;
+}
+
+@keyframes kairos-orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+.kairos-orb-ring {
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  border-top-color: rgba(244, 114, 182, 0.75);
+  animation: kairos-orb-spin 3.2s linear infinite;
+}
+
+.kairos-orb-ring-2 {
+  inset: -40px;
+  border-color: rgba(255, 255, 255, 0.06);
+  border-top-color: rgba(168, 85, 247, 0.4);
+  animation-duration: 5.6s;
+  animation-direction: reverse;
+}
+
+@keyframes kairos-orb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kairos-orb,
+  .kairos-orb-ring { animation: none; }
+}
+
 /* ─── Motion utility classes ───────────────────────────────────────────── */
 .kairos-page-enter {
   animation: kairos-page-in 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-/* Reveal-on-scroll: initial hidden state */
 .kairos-reveal {
   opacity: 0;
   transform: translateY(20px);
 }
-/* Revealed state (applied by IntersectionObserver) */
 .kairos-reveal.revealed {
   animation: kairos-fade-up 520ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-/* Button press scale */
 .kairos-btn-press:active {
   transform: scale(0.97) !important;
   transition: transform 100ms ease !important;
 }
 
-/* Overrides for reduced motion */
+.kairos-cta {
+  position: relative;
+  transition: transform 260ms var(--ease-standard), box-shadow 400ms var(--ease-standard);
+}
+
+.kairos-cta:hover {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 70px rgba(168, 85, 247, 0.6),
+    0 0 24px rgba(244, 114, 182, 0.35),
+    0 8px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+.kairos-cta .kairos-cta-arrow {
+  display: inline-block;
+  transition: transform 260ms var(--ease-standard);
+}
+
+.kairos-cta:hover .kairos-cta-arrow {
+  transform: translateX(5px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kairos-page-enter {
     animation: none;
@@ -474,6 +838,16 @@ body {
     transform: none;
   }
   .kairos-reveal.revealed {
+    animation: none;
+  }
+  .kairos-line-mask > span {
+    transform: none;
+    animation: none;
+  }
+  .kairos-gradient-text {
+    animation: none;
+  }
+  .kairos-skeleton::after {
     animation: none;
   }
 }

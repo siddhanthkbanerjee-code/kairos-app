@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import EventImageWithFallback from "../../components/EventImageWithFallback";
 import { MatchBadge } from "../../components/MatchBadge";
+import KairosFooter from "../../components/KairosFooter";
 
 type RecommendResult = {
   id: string;
@@ -134,28 +135,28 @@ function photosForGenre(ev: RecommendResult) {
   if (genre.includes("electronic") || genre.includes("dance") || genre.includes("club")) {
     return [
       "https://images.unsplash.com/photo-1571266028243-d220c6a4f7d4?w=400&q=80",
-      "https://images.unsplash.com/photo-1571266028243-d220c6a4f7d4?w=400&q=80",
-      "https://images.unsplash.com/photo-1571266028243-d220c6a4f7d4?w=400&q=80",
+      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80",
+      "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80",
     ];
   }
   if (genre.includes("jazz") || genre.includes("soul")) {
     return [
       "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=400&q=80",
-      "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=400&q=80",
-      "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=400&q=80",
+      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=400&q=80",
+      "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80",
     ];
   }
   if (genre.includes("classical")) {
     return [
       "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80",
-      "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80",
-      "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80",
+      "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&q=80",
+      "https://images.unsplash.com/photo-1519683109079-d5f539e1542f?w=400&q=80",
     ];
   }
   return [
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80",
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80",
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80",
+    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80",
+    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80",
   ];
 }
 
@@ -411,9 +412,13 @@ export default function EventDetailPage() {
           </div>
 
           <div className="absolute bottom-6 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8">
-            <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-6xl">
-              {ev.title ?? "Untitled event"}
-            </h1>
+            <span className="kairos-line-mask">
+              <span style={{ animationDelay: "120ms" }}>
+                <h1 className="editorial text-balance text-4xl font-bold leading-[1.05] text-white sm:text-6xl">
+                  {ev.title ?? "Untitled event"}
+                </h1>
+              </span>
+            </span>
             <div className="mt-3 sm:hidden">
               <MatchBadge score={ev.score ?? 0} size="default" />
             </div>
@@ -421,11 +426,30 @@ export default function EventDetailPage() {
         </section>
 
         <div className="mx-auto w-full max-w-5xl px-5 pb-28 pt-10 sm:px-8">
-          <section className="space-y-3">
+          <section className="space-y-4">
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
               {[ev.venue, dateLabel, timeLabel].filter(Boolean).join(" · ")}
             </p>
             <p className="text-lg font-semibold text-white">{priceLabel}</p>
+            {safeTags(ev.vibe_tags).length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {safeTags(ev.vibe_tags)
+                  .slice(0, 6)
+                  .map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full px-3.5 py-1.5 text-xs font-medium capitalize"
+                      style={{
+                        color: "rgba(255,255,255,0.75)",
+                        background: "rgba(168,85,247,0.10)",
+                        border: "1px solid rgba(168,85,247,0.28)",
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+              </div>
+            ) : null}
           </section>
 
           <section
@@ -587,49 +611,7 @@ export default function EventDetailPage() {
             </div>
           </section>
 
-          <footer className="mt-14 border-t border-white/10 bg-[rgba(255,255,255,0.02)] px-1 py-10">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:items-start">
-              <div className="space-y-2">
-                <Link href="/" className="editorial text-xl font-semibold text-white">
-                  Kairos
-                </Link>
-                <div className="text-sm text-white/55">Find your perfect moment.</div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/60">
-                  <Link href="/feed" className="hover:text-white/85">
-                    Discover
-                  </Link>
-                  <Link href="/passport" className="hover:text-white/85">
-                    Taste Passport
-                  </Link>
-                  <Link href="/saved" className="hover:text-white/85">
-                    Saved
-                  </Link>
-                  <Link href="/coming-soon" className="hover:text-white/85">
-                    For Venues
-                  </Link>
-                  <Link href="/about" className="hover:text-white/85">
-                    About
-                  </Link>
-                  <Link href="/coming-soon" className="hover:text-white/85">
-                    Careers
-                  </Link>
-                  <Link href="/coming-soon" className="hover:text-white/85">
-                    Press
-                  </Link>
-                </div>
-                <div className="text-xs text-white/35">
-                  All rights reserved. All wrongs reversed. · Made with obsession in London.
-                </div>
-              </div>
-
-              <div className="text-xs text-white/40 md:text-right">
-                Kairos 2025. Not responsible for life-changing nights.
-              </div>
-            </div>
-          </footer>
+          <KairosFooter />
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[rgba(10,10,18,0.78)] backdrop-blur-xl">
@@ -638,13 +620,16 @@ export default function EventDetailPage() {
               href={ev.url ?? undefined}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-12 w-full items-center justify-center rounded-2xl px-6 text-sm font-semibold text-white"
+              className="kairos-cta kairos-btn-press inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-6 text-sm font-semibold text-white"
               style={{
                 background: `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_2} 100%)`,
                 boxShadow: "0 18px 60px rgba(168,85,247,0.22)",
               }}
             >
               Get Tickets · {priceLabel}
+              <span className="kairos-cta-arrow" aria-hidden="true">
+                &rarr;
+              </span>
             </a>
           </div>
         </div>

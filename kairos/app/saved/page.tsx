@@ -84,11 +84,16 @@ export default function SavedPage() {
           >
             Your shortlist
           </p>
-          <h1 className="editorial text-4xl font-semibold leading-tight text-white sm:text-5xl">
-            Saved
+          <h1 className="editorial text-4xl font-semibold leading-tight text-white sm:text-6xl">
+            Nights worth{" "}
+            <em className="kairos-gradient-text" style={{ fontStyle: "italic" }}>
+              keeping.
+            </em>
           </h1>
           <p className="mt-3 text-sm" style={{ color: "rgba(255,255,255,0.50)" }}>
-            Events you want to remember.
+            {savedEvents.length > 0
+              ? `${savedEvents.length} ${savedEvents.length === 1 ? "event" : "events"} on your shortlist.`
+              : "Events you want to remember."}
           </p>
         </header>
 

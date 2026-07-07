@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import EventImageWithFallback from "../components/EventImageWithFallback";
 import { EventCard } from "../components/EventCard";
 import { FilterPill } from "../components/FilterPill";
-import { motion } from "framer-motion";
+import { MatchBadge } from "../components/MatchBadge";
+import KairosFooter from "../components/KairosFooter";
+import { motion, useReducedMotion } from "framer-motion";
 
 type RecommendResult = {
   id: string;
@@ -366,7 +368,7 @@ function Row({
           onMouseLeave={() => {
             pausedRef.current = false;
           }}
-          className="no-scrollbar flex gap-4 overflow-x-auto pb-2"
+          className="no-scrollbar kairos-edge-fade flex gap-4 overflow-x-auto pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {events.map((ev, idx) => (
@@ -396,8 +398,36 @@ function Row({
   );
 }
 
+function useLondonNow() {
+  return useMemo(() => {
+    const now = new Date();
+    const hour = Number(
+      new Intl.DateTimeFormat("en-GB", {
+        hour: "numeric",
+        hour12: false,
+        timeZone: "Europe/London",
+      }).format(now)
+    );
+    const greeting =
+      hour >= 5 && hour < 12
+        ? "Good morning"
+        : hour >= 12 && hour < 18
+          ? "Good afternoon"
+          : "Good evening";
+    const dateLine = new Intl.DateTimeFormat("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      timeZone: "Europe/London",
+    }).format(now);
+    return { greeting, dateLine };
+  }, []);
+}
+
 export default function FeedPage() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
+  const { greeting, dateLine } = useLondonNow();
   const [items, setItems] = useState<RecommendResult[] | null>(null);
   const [activeMode, setActiveMode] = useState<"solo" | "date" | "group">(
     "solo"
@@ -747,8 +777,28 @@ export default function FeedPage() {
   if (sortedEvents === null) {
     return (
       <main className="min-h-dvh">
-        <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8">
-          <div className="text-white/70">Loading your feed…</div>
+        <div className="mx-auto w-full max-w-6xl px-5 pb-14 pt-10 sm:px-8">
+          <div
+            className="kairos-skeleton mb-4 h-4 w-44"
+            style={{ borderRadius: 999 }}
+          />
+          <div
+            className="kairos-skeleton mb-10 h-12 w-full max-w-md"
+            style={{ borderRadius: 12 }}
+          />
+          <div
+            className="kairos-skeleton mb-10 w-full"
+            style={{ height: 320, borderRadius: 24 }}
+          />
+          <div className="flex gap-4 overflow-hidden">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="kairos-skeleton w-[206px] shrink-0"
+                style={{ height: 330 }}
+              />
+            ))}
+          </div>
         </div>
       </main>
     );
@@ -777,16 +827,22 @@ export default function FeedPage() {
       <div className="mx-auto w-full max-w-6xl px-5 pb-14 pt-10 sm:px-8">
         <header className="mb-8">
           <p
-            className="mb-3 text-[10px] font-semibold uppercase"
+            className="mb-3 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase"
             style={{ color: ACCENT, letterSpacing: "0.35em" }}
           >
-            Personalised for you
+            <span className="kairos-live-dot" aria-hidden="true" />
+            {greeting} · {dateLine}
           </p>
-          <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl">
-            Your London, Tonight
+          <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-6xl">
+            Your London,{" "}
+            <em className="kairos-gradient-text" style={{ fontStyle: "italic" }}>
+              Tonight
+            </em>
           </h1>
           <p className="mt-3 max-w-2xl text-sm" style={{ color: "rgba(255,255,255,0.50)" }}>
-            Every match score is calculated from your taste profile. The higher the score, the closer it fits.
+            {filtered && filtered.length > 0
+              ? `${filtered.length} events matched to your taste profile. The higher the score, the closer the fit.`
+              : "Every match score is calculated from your taste profile. The higher the score, the closer it fits."}
           </p>
         </header>
 
@@ -1024,63 +1080,102 @@ export default function FeedPage() {
           <button
             type="button"
             onClick={() => openEvent(featured)}
-            className="mb-8 block w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] text-left transition hover:border-white/20"
-            style={{ height: 280, boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" }}
+            className="group mb-10 block w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] text-left transition-all duration-300"
+            style={{
+              height: "clamp(360px, 52vh, 460px)",
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.06), 0 30px 90px rgba(0,0,0,0.5)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow =
+                "0 0 0 1px rgba(168,85,247,0.35), 0 30px 90px rgba(0,0,0,0.55), 0 0 60px rgba(168,85,247,0.14)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow =
+                "0 0 0 1px rgba(255,255,255,0.06), 0 30px 90px rgba(0,0,0,0.5)";
+            }}
           >
-            <div className="relative h-full w-full">
-              <EventImageWithFallback
-                key={`${featured.id}:${featured.image_url ?? "none"}`}
-                event={featured}
-                wrapperClassName="absolute inset-0"
-                imgClassName="absolute inset-0 h-full w-full object-cover"
-                size="default"
-              />
+            <div className="relative h-full w-full overflow-hidden">
+              {/* Slow Ken Burns drift on the hero image. */}
+              <motion.div
+                className="absolute inset-0 kairos-ken-burns-wrapper"
+                style={{ willChange: "transform", transformOrigin: "50% 40%" }}
+                animate={prefersReducedMotion ? {} : { scale: [1, 1.07, 1] }}
+                transition={{ duration: 26, ease: "linear", repeat: Infinity }}
+              >
+                <EventImageWithFallback
+                  key={`${featured.id}:${featured.image_url ?? "none"}`}
+                  event={featured}
+                  wrapperClassName="absolute inset-0"
+                  imgClassName="absolute inset-0 h-full w-full object-cover"
+                  size="default"
+                />
+              </motion.div>
 
               <div
                 className="absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(to top, rgba(10,10,10,0.78), rgba(10,10,10,0.28), rgba(10,10,10,0.08))",
+                    "linear-gradient(to top, rgba(8,7,16,0.92) 0%, rgba(8,7,16,0.45) 45%, rgba(8,7,16,0.10) 75%, transparent 100%)",
                 }}
               />
 
-              <div className="absolute inset-0 flex flex-col justify-between p-5 sm:p-6">
-                <div className="flex items-center justify-between gap-3">
+              <div className="absolute inset-0 flex flex-col justify-between p-5 sm:p-8">
+                <div className="flex items-start justify-between gap-3">
                   <div
-                    className="rounded-full px-3 py-1 text-xs font-semibold"
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase"
                     style={{
-                      background: "rgba(10,10,10,0.55)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      backdropFilter: "blur(10px)",
+                      background: "rgba(10,10,18,0.55)",
+                      border: "1px solid rgba(255,255,255,0.14)",
+                      backdropFilter: "blur(12px)",
+                      letterSpacing: "0.18em",
+                      color: "rgba(255,255,255,0.9)",
                     }}
                   >
+                    <span className="kairos-live-dot" aria-hidden="true" />
                     Featured Tonight
                   </div>
-                  <div
-                    className="rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{
-                      background: "rgba(10,10,10,0.55)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: ACCENT,
-                      backdropFilter: "blur(10px)",
-                    }}
-                  >
-                    {clampMatchPercent(featured.score ?? 0)}% Taste Match
-                  </div>
+                  <MatchBadge score={featured.score ?? 0} size="large" />
                 </div>
 
-                <div className="space-y-2">
-                  <div className="editorial text-balance text-3xl font-semibold leading-tight text-white">
-                    {featured.title ?? "Untitled event"}
+                <div className="space-y-4">
+                  <div>
+                    <div className="editorial text-balance text-4xl font-bold leading-[1.02] text-white sm:text-6xl">
+                      {featured.title ?? "Untitled event"}
+                    </div>
+                    <div className="mt-3 text-sm font-medium text-white/70 sm:text-base">
+                      {[featured.venue, formatEventDate(featured.date)]
+                        .filter(Boolean)
+                        .join(" · ") || "No details"}
+                    </div>
                   </div>
-                  <div className="text-sm text-white/70">
-                    {[featured.venue, formatEventDate(featured.date)]
-                      .filter(Boolean)
-                      .join(" • ") || "No details"}
-                  </div>
+
                   {safeExplanation(getAiExplanation(featured)) ? (
-                    <div className="max-w-3xl text-sm text-white/60 line-clamp-2">
-                      {safeExplanation(getAiExplanation(featured))}
+                    <div
+                      className="max-w-2xl rounded-2xl px-5 py-4"
+                      style={{
+                        background: "rgba(10,10,18,0.55)",
+                        border: "1px solid rgba(168,85,247,0.30)",
+                        backdropFilter: "blur(16px)",
+                      }}
+                    >
+                      <div
+                        className="mb-1.5 flex items-center gap-2 text-[9px] font-semibold uppercase"
+                        style={{ color: ACCENT, letterSpacing: "0.26em" }}
+                      >
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill={ACCENT}
+                          aria-hidden="true"
+                        >
+                          <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61z" />
+                        </svg>
+                        Why Kairos picked this for you
+                      </div>
+                      <div className="line-clamp-2 text-sm leading-relaxed text-white/80">
+                        {safeExplanation(getAiExplanation(featured))}
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -1221,50 +1316,8 @@ export default function FeedPage() {
           })()}
         </div>
 
-        <footer className="mt-14 border-t border-white/10 bg-[rgba(255,255,255,0.02)] px-1 py-10">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:items-start">
-            <div className="space-y-2">
-              <Link href="/" className="editorial text-xl font-semibold text-white">
-                Kairos
-              </Link>
-              <div className="text-sm text-white/55">Find your perfect moment.</div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/60">
-                <Link href="/feed" className="hover:text-white/85">
-                  Discover
-                </Link>
-                <Link href="/passport" className="hover:text-white/85">
-                  Taste Passport
-                </Link>
-                <Link href="/saved" className="hover:text-white/85">
-                  Saved
-                </Link>
-                <Link href="/coming-soon" className="hover:text-white/85">
-                  For Venues
-                </Link>
-                <Link href="/about" className="hover:text-white/85">
-                  About
-                </Link>
-                <Link href="/coming-soon" className="hover:text-white/85">
-                  Careers
-                </Link>
-                <Link href="/coming-soon" className="hover:text-white/85">
-                  Press
-                </Link>
-              </div>
-              <div className="text-xs text-white/35">
-                All rights reserved. All wrongs reversed. · Made with obsession in London.
-              </div>
-            </div>
-
-            <div className="text-xs text-white/40 md:text-right">
-              Kairos 2025. Not responsible for life-changing nights.
-            </div>
-          </div>
-        </footer>
       </div>
+      <KairosFooter />
     </main>
   );
 }

@@ -25,6 +25,12 @@ export default function HelpPage() {
     <main className="min-h-dvh">
       <div className="mx-auto w-full max-w-4xl px-5 pb-14 pt-10 sm:px-8">
         <header className="mb-8">
+          <p
+            className="mb-3 text-[10px] font-semibold uppercase"
+            style={{ color: "#a855f7", letterSpacing: "0.32em" }}
+          >
+            Support
+          </p>
           <h1 className="editorial text-4xl font-semibold text-white sm:text-5xl">
             Help
           </h1>
@@ -150,4 +156,3 @@ export default function HelpPage() {
     </main>
   );
 }
-

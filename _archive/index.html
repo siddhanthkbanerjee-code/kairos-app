@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coffee Roast Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-decor" aria-hidden="true">
+    <!-- Subtle coffee steam and bean shapes via CSS -->
+  </div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">☕</span>
+      <h1>Coffee Roast Quiz</h1>
+    </div>
+    <button id="muteToggle" class="icon-btn" aria-pressed="true" aria-label="Toggle sound">
+      <span class="icon-sound-on" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <main id="app" class="app">
+    <div class="card">
+      <div class="progress">
+        <div class="bar"><span id="progressBar"></span></div>
+        <div class="count"><span id="progressCount">0/0</span></div>
+      </div>
+
+      <section id="quizView" class="view view-quiz" role="group" aria-labelledby="questionText">
+        <h2 id="questionText" class="question">Loading…</h2>
+        <div id="options" class="options" role="list"></div>
+        <nav class="nav">
+          <button id="prevBtn" class="btn ghost" type="button">Back</button>
+          <button id="nextBtn" class="btn primary" type="button">Next</button>
+          <button id="submitBtn" class="btn primary" type="button" hidden>Reveal my brew</button>
+        </nav>
+      </section>
+
+      <section id="resultView" class="view view-result" hidden aria-live="polite">
+        <div class="result-icon" id="resultIcon" aria-hidden="true"></div>
+        <h2 id="resultTitle" class="result-title">Your Coffee Match</h2>
+        <p id="resultTag" class="tagline"></p>
+        <p id="resultDesc" class="desc"></p>
+        <div class="result-actions">
+          <button id="shareBtn" class="btn primary" type="button">Share this roast</button>
+          <button id="restartBtn" class="btn ghost" type="button">Try again</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Dark, classy, and a little sassy. Built for fun.</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
+

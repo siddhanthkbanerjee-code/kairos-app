@@ -111,7 +111,7 @@ export function EventCard({
 
   return (
     <div
-      className={isCarousel ? "w-[188px] shrink-0" : "w-full"}
+      className={isCarousel ? "w-[206px] shrink-0" : "w-full"}
       role="button"
       tabIndex={0}
       aria-label={ev.title ?? "Open event"}
@@ -130,7 +130,7 @@ export function EventCard({
           border: "1px solid rgba(168,85,247,0.15)",
           background: "#14141f",
           boxShadow:
-            "0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
+            "0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
         }}
       >
         {/* Image zone */}
@@ -241,7 +241,7 @@ export function EventCard({
           <h3
             className="editorial line-clamp-2 leading-snug text-white"
             style={{
-              fontSize: isCarousel ? "13px" : "15px",
+              fontSize: isCarousel ? "14px" : "16px",
               fontWeight: 700,
             }}
           >

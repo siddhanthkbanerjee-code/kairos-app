@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import KairosFooter from "../components/KairosFooter";
 
 type QuizAnswers = {
   timeOfDay?: string;
@@ -268,7 +269,10 @@ export default function PassportPage() {
             Profile
           </p>
           <h1 className="editorial text-balance text-4xl font-semibold leading-tight text-white sm:text-6xl">
-            Your Taste DNA
+            Your Taste{" "}
+            <em className="kairos-gradient-text" style={{ fontStyle: "italic" }}>
+              DNA
+            </em>
           </h1>
         </div>
 
@@ -491,6 +495,7 @@ export default function PassportPage() {
           </Link>
         </div>
       </div>
+      <KairosFooter />
     </main>
   );
 }

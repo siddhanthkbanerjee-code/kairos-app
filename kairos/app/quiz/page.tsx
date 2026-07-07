@@ -46,6 +46,64 @@ type AnyQuestion = SingleQuestion | MultiQuestion | SliderQuestion;
 
 const ACCENT = "#a855f7";
 
+const LOADER_PHRASES = [
+  "Reading your energy…",
+  "Mapping 3,072 taste dimensions…",
+  "Scanning 828 London nights…",
+  "Weighing the unexpected…",
+  "Curating your city…",
+];
+
+/* Full-screen interstitial while the recommendation engine runs. Turns
+   dead API latency into the most cinematic moment of the product. */
+function SubmitOverlay() {
+  const [phrase, setPhrase] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(
+      () => setPhrase((x) => (x + 1) % LOADER_PHRASES.length),
+      1600
+    );
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-14 px-6 text-center"
+      style={{
+        background: "rgba(6,5,14,0.88)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        animation: "kairos-page-in 400ms cubic-bezier(0.4,0,0.2,1) both",
+      }}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="kairos-orb">
+        <div className="kairos-orb-ring" aria-hidden="true" />
+        <div className="kairos-orb-ring kairos-orb-ring-2" aria-hidden="true" />
+      </div>
+      <div>
+        <div
+          key={phrase}
+          className="editorial text-2xl font-semibold text-white sm:text-3xl"
+          style={{
+            animation: "kairos-fade-up 500ms cubic-bezier(0.16,1,0.3,1) both",
+          }}
+        >
+          {LOADER_PHRASES[phrase]}
+        </div>
+        <div
+          className="mt-5 text-[10px] font-semibold uppercase"
+          style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.32em" }}
+        >
+          Kairos AI is building your profile
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type PaletteName =
   | "night-underground"
   | "night-underground-light"
@@ -386,6 +444,45 @@ export default function QuizPage() {
     setIndex((i) => Math.min(i + 1, total - 1));
   }
 
+  // Keyboard flow: number keys pick an answer, Enter continues. The quiz
+  // should feel playable, like an instrument.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (isSubmitting) return;
+      if (!current) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "BUTTON" ||
+          target.tagName === "INPUT" ||
+          target.tagName === "A")
+      ) {
+        return;
+      }
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        next();
+        return;
+      }
+
+      if (current.kind === "single") {
+        const n = Number(e.key);
+        if (Number.isInteger(n) && n >= 1 && n <= current.options.length) {
+          const opt = current.options[n - 1];
+          setPulsing(opt);
+          updateAnswer(current.id, opt);
+          window.setTimeout(() => {
+            setPulsing(null);
+            advanceToNextCard();
+          }, 250);
+        }
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   function next() {
     if (!current) return;
     if (!canContinue()) return;
@@ -405,6 +502,7 @@ export default function QuizPage() {
 
   return (
     <main className="min-h-dvh" style={{ color: "rgba(255,255,255,0.92)" }}>
+      {isSubmitting ? <SubmitOverlay /> : null}
       <div className="mx-auto w-full max-w-3xl px-5 pb-14 pt-8 sm:px-8">
         <header className="mb-6">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
@@ -426,12 +524,14 @@ export default function QuizPage() {
             </button>
           </div>
 
-          <div className="mt-4 h-px w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full rounded-full transition-[width] duration-400 ease-out"
+              className="h-full rounded-full transition-[width] duration-500 ease-out"
               style={{
                 width: `${progressPct}%`,
                 background: `linear-gradient(90deg, ${ACCENT} 0%, #f472b6 100%)`,
+                boxShadow:
+                  "0 0 12px rgba(168,85,247,0.75), 0 0 26px rgba(244,114,182,0.35)",
               }}
             />
           </div>
@@ -470,7 +570,7 @@ export default function QuizPage() {
           <div className="mt-7 space-y-4">
             {current.kind === "single" ? (
               <div className="grid grid-cols-1 gap-3">
-                {current.options.map((opt) => {
+                {current.options.map((opt, optIdx) => {
                   const selected = answers[current.id] === opt;
                   return (
                     <button
@@ -492,19 +592,47 @@ export default function QuizPage() {
                         animation:
                           pulsing === opt
                             ? "kairos-pulse-select 250ms ease-out"
-                            : undefined,
+                            : `kairos-fade-up 440ms cubic-bezier(0.16,1,0.3,1) ${
+                                140 + optIdx * 65
+                              }ms both`,
                       }}
                     >
-                      <div className="text-base font-medium text-white">{opt}</div>
+                      <div className="flex items-center gap-4">
+                        <span
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                          style={{
+                            background: selected
+                              ? "linear-gradient(135deg, rgba(168,85,247,0.85) 0%, rgba(244,114,182,0.75) 100%)"
+                              : "rgba(255,255,255,0.05)",
+                            border: selected
+                              ? "1px solid rgba(255,255,255,0.25)"
+                              : "1px solid rgba(255,255,255,0.12)",
+                            color: selected ? "#fff" : "rgba(255,255,255,0.45)",
+                            transition: "all 200ms ease",
+                          }}
+                          aria-hidden="true"
+                        >
+                          {optIdx + 1}
+                        </span>
+                        <span className="text-base font-medium text-white">
+                          {opt}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
+                <div
+                  className="mt-1 hidden text-xs sm:block"
+                  style={{ color: "rgba(255,255,255,0.28)" }}
+                >
+                  Press 1 to {current.options.length} to choose
+                </div>
               </div>
             ) : null}
 
             {current.kind === "multi" ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {current.options.map((opt) => {
+                {current.options.map((opt, optIdx) => {
                   const arr = (answers[current.id] ?? []) as string[];
                   const selected = Array.isArray(arr) && arr.includes(opt);
                   return (
@@ -517,8 +645,33 @@ export default function QuizPage() {
                       }}
                       disabled={isSubmitting}
                       className={optionClassName(selected)}
+                      style={{
+                        animation: `kairos-fade-up 440ms cubic-bezier(0.16,1,0.3,1) ${
+                          120 + optIdx * 45
+                        }ms both`,
+                      }}
                     >
-                      <div className="text-base font-medium text-white">{opt}</div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-base font-medium text-white">
+                          {opt}
+                        </span>
+                        <span
+                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px]"
+                          style={{
+                            background: selected
+                              ? "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)"
+                              : "rgba(255,255,255,0.06)",
+                            border: selected
+                              ? "1px solid rgba(255,255,255,0.3)"
+                              : "1px solid rgba(255,255,255,0.14)",
+                            color: "#fff",
+                            transition: "all 200ms ease",
+                          }}
+                          aria-hidden="true"
+                        >
+                          {selected ? "✓" : ""}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -574,7 +727,12 @@ export default function QuizPage() {
                 canContinue() ? "text-white kairos-btn-press" : "cursor-not-allowed text-white/45",
               ].join(" ")}
               style={{
-                background: canContinue() ? ACCENT : "rgba(255,255,255,0.08)",
+                background: canContinue()
+                  ? "linear-gradient(135deg, #a855f7 0%, #f472b6 100%)"
+                  : "rgba(255,255,255,0.08)",
+                boxShadow: canContinue()
+                  ? "0 0 34px rgba(168,85,247,0.35), 0 8px 24px rgba(0,0,0,0.3)"
+                  : "none",
               }}
             >
               {isSubmitting

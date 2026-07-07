@@ -4,6 +4,51 @@ Each entry summarises what shipped in a session. Most recent first.
 
 ---
 
+## 2026-07-07: Full design overhaul (Cowork overnight session)
+
+**Scope:** Elevation pass across the entire product. Same brand tokens (colours, Playfair + DM Sans, radii), dramatically higher polish. No dependency changes, no framework changes, no algorithm changes.
+
+### New atmosphere layer (every page)
+
+- **Film grain**: animated SVG noise overlay at 4 percent opacity, fixed above all content. `app/globals.css` (`.kairos-grain`).
+- **Vignette**: soft radial edge darkening for cinema depth (`.kairos-vignette`).
+- **Cursor spotlight**: a 720px purple/rose torch that trails the pointer with lerp smoothing. Desktop pointers only, disabled for reduced motion. Injected by `KairosChrome`.
+- **Luminous blobs**: palette colours now render as radial gradients (lit from within) instead of flat fills. Same palette system and JS API, more depth. Blobs also get `saturate(1.15)`.
+
+### Foundation and chrome
+
+- `KairosChrome.tsx`: desktop inline nav links (Discover, Passport, Saved, About) with gradient underline hover and active state; live London clock (LDN HH:MM with pulsing dot); drawer links nudge right on hover.
+- **Palette map completed**: quiz was already dispatching `gold-dark`, `blue-dark`, and four `-light` variants that silently fell back to default. Added proper entries for all six. NOTE: `gold-dark` introduces amber blob tones inside the existing per-answer palette system (for "Elegant & refined"); surfaced here per the design-token rule. Trivial to remove if unwanted.
+- New shared `KairosFooter.tsx`: ghost Playfair wordmark watermark, link rows, London Live indicator, v0.2 mark. Used on home, feed, event detail, about, passport. Removed the two duplicated inline footers.
+- New motion vocabulary in `globals.css`: masked line reveals (`.kairos-line-mask`), breathing gradient text (`.kairos-gradient-text`), marquee, skeleton shimmer, edge-fade masks for carousels, CTA glow + arrow-slide hover, orb loader.
+
+### Page passes
+
+- **Home**: two-line masked title reveal with italic gradient "moment."; live-dot eyebrow; stats strip (828 events indexed / 3,072 taste dimensions / 1 perfect night); editorial marquee strip (Secret gigs, Warehouse raves, Gallery lates...); ghost numerals behind the three features; closing statement section; shared footer.
+- **Quiz**: staggered option entrances; numbered chips on single-choice answers, check chips on multi; keyboard play (press 1 to 4 to answer, Enter to continue, with hint); progress bar glow; gradient continue button; and a full-screen **submit interstitial**: breathing orb with counter-rotating rings and cycling copy ("Reading your energy…", "Mapping 3,072 taste dimensions…") that covers API latency.
+- **Feed**: time-aware header (Good evening · Monday 7 July, live dot, matched-event count); featured hero rebuilt: taller (up to 460px), Ken Burns drift, large match badge, frosted "Why Kairos picked this for you" AI pill, hover glow; skeleton shimmer loading state replaces plain text; carousels get edge-fade masks; card images zoom slowly on hover.
+- **Event detail**: masked title reveal on the hero; vibe tag chips; distinct per-genre vibe photos (was the same photo three times); CTA arrow + glow; shared footer.
+- **EventCard**: carousel width 188 to 206px, titles up 1px, top glass glint, hover adds outer glow + slow image zoom.
+- **About**: rebuilt as a manifesto: oversized italic-accent headline, editorial pull-quote, closing "kairos" etymology paragraph.
+- **New 404** (`app/not-found.tsx`): "Lost in the night." branded page.
+- **Saved / Settings / Help / Coming soon**: consistent eyebrow labels, headline polish, live counts on Saved.
+
+### Accessibility and performance
+
+- All new animation respects `prefers-reduced-motion` (grain, spotlight, marquee, reveals, orb, shimmer all disable).
+- Spotlight uses a single rAF with transform-only updates; grain is one fixed element; no layout-thrashing animations added.
+
+**Verified:** clean `npm install` + `npm run build` (Next.js 16.1.7, Turbopack) passed with zero errors in an isolated Linux environment with a fresh dependency install. Windows `node_modules` untouched. Run `npm run build` locally before pushing per standing rule 6.
+
+**Not done (needs Siddhanth or Claude Code):** git commit and push. This session had no access to the git repo root (`CafeCursor\`), only the `kairos\` folder.
+
+**Deferred:**
+- Landing "light-landing" palette still flips the background light on home; the new grain/vignette are tuned for dark. Looks fine, but consider retiring the light palette for full consistency.
+- FriendCard hardcoded names on event detail (pre-existing).
+- Styleguide route from Phase 4 brief (never existed; low priority).
+
+---
+
 ## 2026-05-31: Brief 1 quick wins + Brief 2 dataset rebuild (scripts and schema)
 
 ### Brief 1: Quick wins (shipped and build-verified)
