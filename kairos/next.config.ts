@@ -1,7 +1,2 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
+export default { turbopack: { root: process.cwd() } };
+// pin turbopack root to kairos so tailwind resolves local depsxxxxxxxxxxxxxx
