@@ -138,8 +138,10 @@ No spring physics that bounce. No flashing. No instant snaps. Default easing: `c
 - Anthropic Claude SDK (match explanations)
 - Pinecone (vector DB, kairos-events index)
 - Supabase (to be added during this brief for persistence)
+- Ticketmaster Discovery API + Skiddle Events API (real event sources)
+- Vercel Blob (self-hosted event images)
 
-Pinecone index: ~828 events. Fabricated niche events carry a 1.20 score multiplier to prevent mainstream Ticketmaster events dominating recommendations.
+Pinecone index: real events only as of 2026-07-29 (real-events pipeline, see below). The old fabricated dataset and its 1.20 score multiplier are retired: no event in the index has `event_dna.source: "fabricated"` anymore, so that multiplier in `route.ts` is inert (harmless legacy code, left as-is per standing rule 1).
 
 ---
 
@@ -191,8 +193,24 @@ Updated by Claude Code at the end of each session.
 - Live feed at `kairos-psi.vercel.app` confirmed returning events with WebP images and AI explanations.
 - Past-event filter, FilterPill uniform grid, About nav link also shipped this session.
 
+### Real events pipeline complete (2026-07-29)
+
+Replaced the fully fabricated dataset with real events. See `CURRENT_TASK_real_events.md` for the full brief.
+
+- `data/recurring-anchors.json`: 19 hand-curated, individually verified recurring London venues/nights (Fabric, Ronnie Scott's, Tate Modern Lates, Angel Comedy, Top Secret Comedy Club, Comedy Store Players, 606 Club, Jazz Cafe, Wigmore Hall Sunday Concerts, Southbank futuretense, XOYO, Ministry of Sound, Heaven/G-A-Y, Dalston Superstore, V&A Friday Late, Design Museum Lates, Backyard Comedy Club, Borough Market, Maltby Street Market). Corsica Studios excluded (confirmed closing for refurbishment). `scripts/lib/resolve-anchor-dates.mjs` resolves each anchor's next 1 to 2 occurrences fresh on every run.
+- `scripts/build-real-events.mjs`: fetches Ticketmaster Discovery API and Skiddle Events API (independently, either alone is sufficient), normalizes, dedupes, collapses long-running productions (theatre shows that list every performance as a separate listing) down to their nearest date, curates to 400 with a category cap and a guaranteed floor for anchors, verifies every ticket link (drops only 404/5xx, treats 401/403 bot-blocking as unverifiable-not-dead), self-hosts images via Vercel Blob (WebP, quality 85), generates honest Claude descriptions (hard rule: no invented specifics beyond given facts, verified against real output), embeds with text-embedding-3-large, and does a delta upsert to Pinecone.
+- `scripts/finish-real-events.mjs`: companion script that completes descriptions/embeddings/Pinecone upsert against the existing checkpoint without re-fetching, useful for resuming after an interruption without chasing a shifting live dataset.
+- **Pinecone index fully transitioned**: the old 300 fabricated vectors deleted, 400 real vectors upserted (91 Ticketmaster, 271 Skiddle, 38 recurring-anchor occurrences). Verified via direct fetch: correct metadata shape, real ticket URLs, self-hosted Blob image URLs, zero `event_dna.source: "fabricated"` remaining.
+- Category breakdown at time of writing: nightlife 140-150, music ~100-108, comedy ~52-58, arts ~49-52, misc ~27-50, food 4, sports 4. Food and sports are thin because Ticketmaster/Skiddle genuinely have little dedicated inventory in those categories for London right now, not a bug, not fabricated to compensate.
+- `.github/workflows/refresh-events.yml`: twice-weekly cron (Monday and Thursday, 06:00 UTC) plus manual `workflow_dispatch`. **Not yet enabled**: zero of the 7 required secrets (`TICKETMASTER_API_KEY`, `SKIDDLE_API_KEY`, `BLOB_READ_WRITE_TOKEN`, `OPENAI_API_KEY`, `PINECONE_API_KEY`, `PINECONE_INDEX`, `ANTHROPIC_API_KEY`) exist on the GitHub repo yet. Add them via Settings > Secrets and variables > Actions, then trigger `workflow_dispatch` manually once before trusting the cron.
+- `data/real-events-checkpoint.json` (contains full embedding vectors, ~35 MB) is gitignored, not committed. Each automated run does a fuller regeneration than a minimal delta would need, but stays within the brief's own cost estimate (a few cents to a few dollars a month); the tradeoff avoids a large, ever-changing binary-ish blob in git history. Revisit if cost or run time ever becomes a real problem.
+- `sharp` and `@vercel/blob` added as local dependencies (`npm install`, not global). No framework version changes.
+- Verified end to end: `npm run build` clean, local dev server hit against `/api/recommend` and confirmed real events, real images, real ticket URLs, real AI explanations. `route.ts` untouched, exactly as the brief intended.
+
 ---
 
 ## Current session task
 
-See `CURRENT_TASK.md` in the project root.
+Real events pipeline (above) is complete pending Siddhanth's manual steps: add the 7 GitHub secrets, run `workflow_dispatch` once to confirm the automation end to end, then enable the cron.
+
+Next queued brief: `CURRENT_TASK_design_polish.md` ("Stop Looking Vibe-Coded" pass: spacing/type scale, interaction states, OG image, instant sample feed path, first-load audit). Not started this session. Open a new session with that file as the active `CURRENT_TASK.md` when ready.

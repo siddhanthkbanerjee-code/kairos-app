@@ -7,4 +7,5 @@ node_modules/
 
 # Build artifacts
 data/events-checkpoint.json
+data/real-events-checkpoint.json
 data/_archive/

@@ -1,0 +1,79 @@
+name: Refresh real events
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # 06:00 UTC Monday and Thursday (early UK morning year-round, BST or GMT).
+    - cron: "0 6 * * 1,4"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kairos
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: kairos/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run real-events pipeline
+        env:
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
+          SKIDDLE_API_KEY: ${{ secrets.SKIDDLE_API_KEY }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_INDEX: ${{ secrets.PINECONE_INDEX }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/build-real-events.mjs
+
+      - name: Run summary
+        if: always()
+        run: |
+          echo "## Real events refresh summary" >> "$GITHUB_STEP_SUMMARY"
+          node -e "
+            const fs = require('fs');
+            const cp = JSON.parse(fs.readFileSync('data/real-events-checkpoint.json', 'utf8'));
+            const run = cp.runs?.[cp.runs.length - 1];
+            const events = Object.values(cp.events || {});
+            const withImage = events.filter((e) => e.hostedImageUrl).length;
+            const withDesc = events.filter((e) => e.description).length;
+            const lines = [
+              '- Ticketmaster fetched: ' + (run?.fetched?.ticketmaster ?? 'n/a'),
+              '- Skiddle fetched: ' + (run?.fetched?.skiddle ?? 'n/a'),
+              '- Recurring anchor occurrences: ' + (run?.fetched?.anchors ?? 'n/a'),
+              '- After dedup: ' + (run?.afterDedup ?? 'n/a'),
+              '- After curation: ' + (run?.afterCurate ?? 'n/a'),
+              '- Live, verified events in final set: ' + (run?.finalAliveCount ?? events.length),
+              '- Dead ticket links dropped: ' + (run?.deadLinksDropped ?? 'n/a'),
+              '- Events with a hosted image: ' + withImage + ' / ' + events.length,
+              '- Events with a generated description: ' + withDesc + ' / ' + events.length,
+              '- Estimated run cost: a few cents (embeddings + new-event descriptions only, see CLAUDE.md cost note)',
+            ];
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+          "
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "kairos-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/events.json data/real-events-checkpoint.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: automated real-events refresh"
+            git push
+          fi

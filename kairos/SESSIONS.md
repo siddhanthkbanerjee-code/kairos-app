@@ -4,6 +4,34 @@ Each entry summarises what shipped in a session. Most recent first.
 
 ---
 
+## 2026-07-29: Real events pipeline (fabricated dataset retired)
+
+**Scope:** `CURRENT_TASK_real_events.md`. Replace the fully fabricated 300-event dataset with real London events (Ticketmaster + Skiddle) plus a hand-curated set of recurring venue nights, self-hosted images, and a twice-weekly automated refresh. No framework version changes. No `route.ts` changes (by design, per the brief's schema note).
+
+**What shipped:**
+
+1. **Recurring anchors** (`data/recurring-anchors.json`, `scripts/lib/resolve-anchor-dates.mjs`): 19 real, individually web-verified recurring London nights spanning nightlife, jazz, comedy, classical, arts, and food. Corsica Studios was researched and excluded (confirmed closing for refurbishment); a few other candidates (EartH, Sadler's Wells, Phonox, Barbican's finite 2026 series) were excluded for not having a clean, evergreen recurring pattern. `resolveAnchorDates()` computes each anchor's next 1-2 occurrences fresh on every run (weekly, nightly, monthly-nth-weekday, and twice-monthly pattern types).
+
+2. **Ingestion pipeline** (`scripts/build-real-events.mjs`): fetches Ticketmaster Discovery API and Skiddle Events API independently (either alone is sufficient, checked at runtime), normalizes into a shared shape, dedupes by venue/date/fuzzy-title match, collapses long-running theatre productions that list every performance as a separate event down to their single nearest date, curates to 400 with a per-category cap and a guaranteed floor for hand-curated anchors (so a numerically thin real-time category like food still shows up), verifies every ticket link (drops only 404/5xx, per the brief; 401/403 from bot-protected ticketing sites is treated as unverifiable, not dead, confirmed against real on-sale Ticketmaster events).
+
+3. **Self-hosted images** (Phase 3): downloads, converts to WebP (quality 85, reusing the existing `convert-to-webp.mjs` approach), uploads to Vercel Blob (`public` access, stable pathname, `allowOverwrite`). `EventImageWithFallback.tsx` needed zero changes, confirmed it already handles a missing `image_url` gracefully.
+
+4. **Descriptions and embeddings** (Phase 4): Claude Sonnet 4.5 generates descriptions and AI-explanation copy under a hard no-invention rule (only venue, category, vibe tags, price tier, and an explicit source note may be mentioned; verified against a live test where an ungrounded prompt invented specific JAY-Z album names, fixed by tightening the system prompt). Embeddings via `text-embedding-3-large`. Output is deterministically scrubbed for em dashes (rule 7) rather than trusting the prompt alone, since a live test also produced one despite the instruction.
+
+5. **Pinecone transition**: snapshotted the existing 300-vector index, deleted all 300 (old fabricated events), upserted 400 real vectors (91 Ticketmaster, 271 Skiddle, 38 recurring-anchor occurrences). Verified via direct fetch that metadata shape, real ticket URLs, and self-hosted image URLs are all correct, and that zero vectors carry `event_dna.source: "fabricated"` anymore.
+
+6. **Automation** (`.github/workflows/refresh-events.yml`): twice-weekly cron (Mon/Thu 06:00 UTC) plus manual `workflow_dispatch`, with a run-summary step and a commit-and-push-if-changed step. Not yet enabled: zero of the 7 required secrets exist on the GitHub repo, listed in `CLAUDE.md`. Needs Siddhanth to add them and trigger a manual run before trusting the cron.
+
+**Bugs found and fixed during this session** (worth knowing about for future changes to this script): Pinecone SDK's `deleteMany` and `fetch` both require `{ ids: [...] }`, not a raw array (both crashed on first use); a checkpoint merge step wasn't carrying forward cached descriptions/embeddings/images across runs, which would have made every run regenerate everything from scratch; the Pinecone metadata builder omitted the `url` field entirely (ticket links were `null` in the live API response until caught by a manual end-to-end test); Claude's description prompt needed a much stronger no-invention rule after a first pass fabricated specific album names for a real artist.
+
+**Verified:** `npm run build` clean (Next.js 16.1.7, Turbopack). Local dev server hit against `/api/recommend`, confirmed real events with real ticket URLs, real hosted images, and real AI explanations flowing through unmodified `route.ts`.
+
+**Deferred (needs Siddhanth):**
+- Add the 7 GitHub Actions secrets and run `workflow_dispatch` manually once before enabling the cron.
+- `CURRENT_TASK_design_polish.md` is queued next, not started this session.
+
+---
+
 ## 2026-07-07: Full design overhaul (Cowork overnight session)
 
 **Scope:** Elevation pass across the entire product. Same brand tokens (colours, Playfair + DM Sans, radii), dramatically higher polish. No dependency changes, no framework changes, no algorithm changes.
